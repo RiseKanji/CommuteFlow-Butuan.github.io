@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full w-full bg-black text-slate-100">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>CommuteFlow Butuan - Apple Maps Style</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ios: {
+                            bg: '#000000',
+                            card: 'rgba(28, 28, 30, 0.85)',
+                            cardLight: 'rgba(44, 44, 46, 0.75)',
+                            blue: '#0a84ff',
+                            green: '#30d158',
+                            orange: '#ff9f0a',
+                            red: '#ff453a',
+                            purple: '#bf5af2',
+                            gray: '#8e8e93',
+                            border: 'rgba(255, 255, 255, 0.12)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"Helvetica Neue"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            background-color: #000000;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            z-index: 0;
+            background: #000000;
+        }
+
+        /* Apple Maps Leaflet Overrides */
+        .leaflet-control-zoom {
+            border: none !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        }
+        .leaflet-control-zoom-in, .leaflet-control-zoom-out {
+            background-color: rgba(28, 28, 30, 0.85) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            width: 40px !important;
+            height: 40px !important;
+            line-height: 40px !important;
+            border-radius: 14px !important;
+            margin-bottom: 6px !important;
+            font-weight: 300 !important;
+        }
+        .leaflet-control-attribution {
+            background: rgba(0, 0, 0, 0.6) !important;
+            color: #8e8e93 !important;
+            font-size: 10px;
+            backdrop-filter: blur(10px);
+            border-radius: 8px 0 0 0;
+            padding: 3px 8px !important;
+        }
+        .leaflet-control-attribution a {
+            color: #0a84ff !important;
+        }
+
+        /* Apple Glassmorphism */
+        .ios-glass {
+            background: rgba(28, 28, 30, 0.82);
+            backdrop-filter: blur(25px) saturate(190%);
+            -webkit-backdrop-filter: blur(25px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .ios-glass-card {
+            background: rgba(44, 44, 46, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Apple Segmented Control */
+        .segmented-control {
+            background: rgba(118, 118, 128, 0.24);
+            backdrop-filter: blur(20px);
+            padding: 3px;
+            border-radius: 14px;
+        }
+
+        .segmented-btn {
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 11px;
+        }
+
+        .segmented-btn.active {
+            background: rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Scrollable horizontal carousel styling */
+        .horizontal-scroll-container {
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .horizontal-scroll-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        .horizontal-scroll-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 4px;
+        }
+
+        .scroll-item {
+            scroll-snap-align: start;
+        }
+
+        /* Pulse Location Marker */
+        .user-location-pulse {
+            position: relative;
+            width: 22px;
+            height: 22px;
+        }
+        .user-location-pulse::before {
+            content: '';
+            position: absolute;
+            width: 300%;
+            height: 300%;
+            top: -100%;
+            left: -100%;
+            background-color: rgba(10, 132, 255, 0.35);
+            border-radius: 50%;
+            animation: pulse-ring 2s infinite ease-out;
+        }
+        .user-location-core {
+            width: 18px;
+            height: 18px;
+            background-color: #0a84ff;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 16px rgba(10, 132, 255, 0.9);
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.3); opacity: 0.95; }
+            80%, 100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .bottom-sheet {
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+        }
+
+        .bottom-sheet.dragging {
+            transition: none !important;
+        }
+    </style>
+</head>
+<body class="h-full w-full relative flex flex-col select-none overflow-hidden bg-black text-slate-100">
+
+    <!-- Fullscreen Leaflet Map -->
+    <div id="map" class="absolute inset-0"></div>
+
+    <!-- Apple Navigation Top Header -->
+    <header class="absolute top-0 left-0 right-0 z-10 p-3 sm:p-4 pointer-events-none flex flex-col gap-2.5">
+        <div class="pointer-events-auto ios-glass rounded-3xl p-3 shadow-2xl flex flex-col gap-2.5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                        <i data-lucide="map-pin" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-base font-bold text-white tracking-tight">CommuteFlow</h1>
+                            <span class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-500/30 uppercase tracking-wide">LPTRP Butuan</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Butuan City Transit & Multicab Planner</p>
+                    </div>
+                </div>
+
+                <button id="open-add-modal-btn" class="p-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white border border-white/15 transition active:scale-95 flex items-center gap-1.5 text-xs font-semibold">
+                    <i data-lucide="plus" class="w-4 h-4 text-blue-400"></i>
+                    <span class="hidden sm:inline">Add Route</span>
+                </button>
+            </div>
+
+            <!-- Apple Landmark Search Input -->
+            <div class="relative w-full">
+                <div class="flex items-center bg-black/50 border border-white/15 rounded-2xl px-3 py-2 text-xs text-white focus-within:border-blue-500 transition shadow-inner">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 mr-2 flex-shrink-0"></i>
+                    <input type="text" id="establishment-search-input" placeholder="Search establishment (e.g. FSUU Morelos, Guingona Plaza, SM)..." class="w-full bg-transparent text-white placeholder-slate-500 focus:outline-none" autocomplete="off" />
+                    <button id="clear-search-btn" class="hidden text-slate-400 hover:text-white ml-1">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+
+                <!-- Auto-complete Suggestions Dropdown -->
+                <div id="search-results-dropdown" class="absolute top-full left-0 right-0 mt-1.5 bg-slate-900/95 backdrop-blur-xl border border-white/15 rounded-2xl shadow-2xl overflow-hidden hidden z-30 max-h-56 overflow-y-auto divide-y divide-white/10">
+                    <!-- Dynamic search items -->
+                </div>
+            </div>
+
+            <!-- Landmark Quick Chips -->
+            <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5 pb-1">
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex-shrink-0">Popular:</span>
+                <button class="quick-poi-chip bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-xl text-[11px] font-medium text-slate-200 flex-shrink-0 border border-white/10" data-poi="fsuu-morelos">FSUU Morelos</button>
+                <button class="quick-poi-chip bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-xl text-[11px] font-medium text-slate-200 flex-shrink-0 border border-white/10" data-poi="guingona-plaza">Guingona Plaza</button>
+                <button class="quick-poi-chip bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-xl text-[11px] font-medium text-slate-200 flex-shrink-0 border border-white/10" data-poi="fsuu-main">FSUU Main</button>
+                <button class="quick-poi-chip bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-xl text-[11px] font-medium text-slate-200 flex-shrink-0 border border-white/10" data-poi="sm-city">SM City</button>
+                <button class="quick-poi-chip bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-xl text-[11px] font-medium text-slate-200 flex-shrink-0 border border-white/10" data-poi="csu-ampayon">CSU Ampayon</button>
+                <button class="quick-poi-chip bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-xl text-[11px] font-medium text-slate-200 flex-shrink-0 border border-white/10" data-poi="bancasi-airport">Airport (BXU)</button>
+            </div>
+        </div>
+
+        <!-- iOS Segmented Filter Control -->
+        <div class="pointer-events-auto segmented-control flex items-center justify-between gap-1 overflow-x-auto no-scrollbar">
+            <button data-mode="all" class="segmented-btn active flex-1 min-w-[70px] py-1.5 text-center text-xs font-semibold text-slate-300">
+                All (<span id="count-all">0</span>)
+            </button>
+            <button data-mode="multicab" class="segmented-btn flex-1 min-w-[95px] py-1.5 text-center text-xs font-semibold text-slate-300 flex items-center justify-center gap-1">
+                <i data-lucide="bus" class="w-3.5 h-3.5 text-emerald-400"></i>
+                Multicab (<span id="count-multicab">0</span>)
+            </button>
+            <button data-mode="tricycle" class="segmented-btn flex-1 min-w-[95px] py-1.5 text-center text-xs font-semibold text-slate-300 flex items-center justify-center gap-1">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+                Tricycle (<span id="count-tricycle">0</span>)
+            </button>
+            <button data-mode="driving" class="segmented-btn flex-1 min-w-[85px] py-1.5 text-center text-xs font-semibold text-slate-300 flex items-center justify-center gap-1">
+                <i data-lucide="car" class="w-3.5 h-3.5 text-sky-400"></i>
+                Private (<span id="count-driving">0</span>)
+            </button>
+        </div>
+    </header>
+
+    <!-- Apple Maps Action Floating Controls -->
+    <div class="absolute right-4 top-52 z-10 flex flex-col gap-2.5">
+        <button id="key-settings-btn" title="Configure CARTO API Key" class="w-11 h-11 rounded-2xl ios-glass text-slate-200 hover:text-white flex items-center justify-center shadow-2xl active:scale-95 transition">
+            <i data-lucide="key" class="w-5 h-5 text-amber-400"></i>
+        </button>
+
+        <button id="toggle-poi-btn" title="Toggle Establishments" class="w-11 h-11 rounded-2xl ios-glass text-slate-200 hover:text-white flex items-center justify-center shadow-2xl active:scale-95 transition">
+            <i data-lucide="store" class="w-5 h-5 text-amber-400"></i>
+        </button>
+
+        <button id="gps-btn" title="Locate Me in Butuan" class="w-11 h-11 rounded-2xl ios-glass text-slate-200 hover:text-white flex items-center justify-center shadow-2xl active:scale-95 transition">
+            <i data-lucide="locate" class="w-5 h-5 text-blue-400"></i>
+        </button>
+
+        <button id="fit-bounds-btn" title="Recenter Route View" class="w-11 h-11 rounded-2xl ios-glass text-slate-200 hover:text-white flex items-center justify-center shadow-2xl active:scale-95 transition">
+            <i data-lucide="maximize-2" class="w-5 h-5 text-slate-300"></i>
+        </button>
+
+        <button id="tile-toggle-btn" title="Switch Tile Style" class="w-11 h-11 rounded-2xl ios-glass text-slate-200 hover:text-white flex items-center justify-center shadow-2xl active:scale-95 transition">
+            <i data-lucide="layers" class="w-5 h-5 text-slate-300"></i>
+        </button>
+    </div>
+
+    <!-- Apple Maps Interactive Bottom Sheet -->
+    <div id="bottom-sheet" class="bottom-sheet absolute bottom-0 left-0 right-0 z-20 ios-glass rounded-t-[32px] shadow-2xl flex flex-col max-h-[82vh] transform translate-y-0">
+        
+        <!-- Sheet Drag Header -->
+        <div id="sheet-handle" class="w-full py-3 flex flex-col items-center justify-center cursor-pointer select-none touch-none hover:bg-white/5 transition rounded-t-[32px]">
+            <div class="w-10 h-1 bg-white/30 rounded-full mb-1.5"></div>
+            <div class="flex items-center justify-between w-full px-5">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Transit Routes & Transfers</span>
+                    <span id="scroll-hint-badge" class="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Swipe ➔</span>
+                </div>
+                <button id="sheet-toggle-icon-btn" class="text-slate-400 hover:text-white p-1 rounded-full hover:bg-white/10 transition">
+                    <i data-lucide="chevron-down" id="sheet-toggle-icon" class="w-5 h-5 transition-transform duration-300"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Scrollable Sheet Content -->
+        <div class="overflow-y-auto no-scrollbar p-4 pt-1 flex flex-col gap-4">
+            
+            <!-- Scrollable Horizontal Route Carousel -->
+            <div id="preset-routes-container" class="horizontal-scroll-container flex gap-3 overflow-x-auto pb-2 pt-1">
+                <!-- Cards rendered dynamically -->
+            </div>
+
+            <!-- Active Selected Route / Multi-Leg Banner -->
+            <div id="active-route-card" class="ios-glass-card rounded-3xl p-4 flex flex-col gap-3">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span id="active-route-badge" class="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wide border border-blue-500/30">MULTICAB</span>
+                            <span id="transfer-badge" class="hidden px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wide border border-amber-500/30">
+                                <i data-lucide="git-merge" class="w-3 h-3 inline mr-1"></i>1 Transfer Required
+                            </span>
+                            <span id="active-route-name" class="text-base font-bold text-white tracking-tight">Select or search destination</span>
+                        </div>
+                        <p id="active-route-desc" class="text-xs text-slate-400 mt-1">Tap a route card or search an establishment above.</p>
+                    </div>
+                </div>
+
+                <!-- Multi-leg Transfer Breakdown UI -->
+                <div id="transfer-breakdown-container" class="hidden flex-col gap-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs">
+                    <div class="font-bold text-amber-400 flex items-center gap-1.5">
+                        <i data-lucide="milestone" class="w-4 h-4"></i> Commute Transfer Itinerary
+                    </div>
+                    <div id="transfer-legs-list" class="flex flex-col gap-1.5 pl-1">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Apple Style Metric Widgets -->
+                <div class="grid grid-cols-3 gap-2 py-2.5 px-3 rounded-2xl bg-black/40 border border-white/5">
+                    <div class="flex flex-col items-center text-center">
+                        <span class="text-[10px] text-slate-400 font-semibold tracking-wider">EST TIME</span>
+                        <span id="metric-eta" class="text-base font-bold text-emerald-400 tracking-tight">-- min</span>
+                    </div>
+                    <div class="flex flex-col items-center text-center border-x border-white/10 px-1">
+                        <span class="text-[10px] text-slate-400 font-semibold tracking-wider">DISTANCE</span>
+                        <span id="metric-dist" class="text-base font-bold text-sky-400 tracking-tight">-- km</span>
+                    </div>
+                    <div class="flex flex-col items-center text-center">
+                        <span class="text-[10px] text-slate-400 font-semibold tracking-wider">TOTAL FARE</span>
+                        <span id="metric-fare" class="text-base font-bold text-amber-400 tracking-tight">₱ --</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Action Buttons -->
+                <div class="flex items-center gap-2.5 pt-0.5">
+                    <button id="start-nav-btn" class="flex-1 py-3 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2 transition active:scale-[0.98]">
+                        <i data-lucide="navigation" class="w-4 h-4 fill-current"></i>
+                        <span>Start Commute</span>
+                    </button>
+                    <button id="view-steps-btn" class="py-3 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-slate-200 border border-white/10 font-semibold text-sm flex items-center gap-2 transition active:scale-[0.98]">
+                        <i data-lucide="list" class="w-4 h-4 text-slate-300"></i>
+                        <span>Steps</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Apple Turn-by-Turn Grouped Directions -->
+            <div id="turn-directions-section" class="hidden flex-col gap-3 pt-1">
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="compass" class="w-4 h-4 text-blue-400"></i>
+                        Turn & Transfer Directions
+                    </h3>
+                    <span id="steps-count-badge" class="text-[11px] text-slate-400 font-mono">0 steps</span>
+                </div>
+                
+                <div id="steps-list" class="flex flex-col rounded-2xl bg-white/5 border border-white/10 overflow-hidden divide-y divide-white/5 max-h-[260px] overflow-y-auto">
+                    <!-- Steps rendered dynamically -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Custom Route Apple Modal Sheet -->
+    <div id="custom-route-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="ios-glass w-full max-w-md rounded-[28px] p-6 shadow-2xl flex flex-col gap-4 transform scale-95 transition-transform duration-300">
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    </div>
+                    <h2 class="text-lg font-bold text-white tracking-tight">New Butuan Route</h2>
+                </div>
+                <button id="close-modal-btn" class="p-1.5 rounded-full text-slate-400 hover:text-white bg-white/10 hover:bg-white/20">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <form id="create-route-form" class="flex flex-col gap-3.5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Route Name</label>
+                    <input type="text" id="route-title-input" required placeholder="e.g. Route 8: Libertad to City Hall" class="w-full bg-white/10 border border-white/15 rounded-2xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Transit Mode</label>
+                        <select id="route-mode-select" class="w-full bg-slate-900 border border-white/15 rounded-2xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="multicab">Jeepney / Multicab</option>
+                            <option value="tricycle">Tricycle / Relik</option>
+                            <option value="driving">Private Car / Taxi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Category</label>
+                        <input type="text" id="route-cat-input" placeholder="e.g. School, Express, Loop" class="w-full bg-white/10 border border-white/15 rounded-2xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="block text-xs font-semibold text-emerald-400 flex items-center justify-between">
+                        <span>Origin (Lat, Lng)</span>
+                        <button type="button" id="pick-origin-map-btn" class="text-[10px] text-blue-400 hover:underline flex items-center gap-1">
+                            <i data-lucide="crosshair" class="w-3 h-3"></i> Pick on Map
+                        </button>
+                    </label>
+                    <input type="text" id="origin-coords-input" required placeholder="8.9492, 125.5430" class="w-full bg-white/10 border border-white/15 rounded-2xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="block text-xs font-semibold text-rose-400 flex items-center justify-between">
+                        <span>Destination (Lat, Lng)</span>
+                        <button type="button" id="pick-dest-map-btn" class="text-[10px] text-blue-400 hover:underline flex items-center gap-1">
+                            <i data-lucide="crosshair" class="w-3 h-3"></i> Pick on Map
+                        </button>
+                    </label>
+                    <input type="text" id="dest-coords-input" required placeholder="8.9525, 125.5348" class="w-full bg-white/10 border border-white/15 rounded-2xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:ring-2 focus:ring-rose-500" />
+                </div>
+
+                <div class="pt-2 flex items-center gap-2">
+                    <button type="button" id="use-current-gps-origin-btn" class="py-2.5 px-3 rounded-2xl bg-white/10 hover:bg-white/15 text-xs text-slate-300 font-medium flex items-center gap-1.5 border border-white/10">
+                        <i data-lucide="locate-fixed" class="w-3.5 h-3.5 text-blue-400"></i>
+                        Use GPS Start
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-600/30 transition">
+                        Save Route
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CARTO API Key Settings Modal -->
+    <div id="api-key-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="ios-glass w-full max-w-sm rounded-[28px] p-6 shadow-2xl flex flex-col gap-4 transform scale-95 transition-transform duration-300">
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                        <i data-lucide="key" class="w-5 h-5"></i>
+                    </div>
+                    <h2 class="text-base font-bold text-white tracking-tight">CARTO API Key</h2>
+                </div>
+                <button id="close-key-modal-btn" class="p-1.5 rounded-full text-slate-400 hover:text-white bg-white/10 hover:bg-white/20">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-300 leading-relaxed">
+                Enter your CARTO API key below. It will be stored safely in your browser's local storage and automatically attached to CARTO map tile requests.
+            </p>
+
+            <form id="save-key-form" class="flex flex-col gap-3">
+                <input type="text" id="carto-api-key-input" placeholder="Paste CARTO API Key here..." class="w-full bg-white/10 border border-white/15 rounded-2xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 transition" />
+                <div class="flex items-center gap-2 pt-1">
+                    <button type="button" id="clear-key-btn" class="py-2.5 px-3 rounded-2xl bg-white/10 hover:bg-white/15 text-xs text-slate-300 font-medium border border-white/10">
+                        Clear
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 px-4 rounded-2xl bg-amber-600 hover:bg-amber-500 text-slate-900 font-bold text-xs shadow-lg shadow-amber-600/30 transition">
+                        Save Key
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Apple Toast Banner -->
+    <div id="toast-notification" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 ios-glass px-4 py-2.5 rounded-full shadow-2xl border border-white/20 flex items-center gap-2 text-xs font-semibold text-white pointer-events-none opacity-0 transform -translate-y-4 transition-all duration-300">
+        <i data-lucide="info" class="w-4 h-4 text-blue-400" id="toast-icon"></i>
+        <span id="toast-msg">Notification message</span>
+    </div>
+    
+    <!-- App Logic Script -->
+    <script>
+        const state = {
+            map: null,
+            tileLayer: null,
+            currentStyleIndex: 0,
+            routes: [],
+            selectedRoute: null,
+            routePolyline: null,
+            secondaryPolyline: null,
+            originMarker: null,
+            destMarker: null,
+            transferMarker: null,
+            userMarker: null,
+            simulatedMarker: null,
+            userCoords: null,
+            showLandmarks: true,
+            poiMarkersGroup: null,
+            activeFilterMode: 'all',
+            mapPickMode: null,
+            isNavigating: false,
+            navAnimInterval: null,
+            isSheetMinimized: false,
+            isDraggingSheet: false
+        };
+
+        const TILE_PROVIDERS = [
+            {
+                id: 'carto-voyager',
+                name: 'CARTO Voyager',
+                url: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_3tld_1_efcfbf6ad3974119604d3acb',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd'
+            },
+            {
+                id: 'carto-dark',
+                name: 'CARTO Dark Matter',
+                url: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd'
+            },
+            {
+                id: 'carto-positron',
+                name: 'CARTO Positron',
+                url: 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd'
+            },
+            {
+                id: 'osm-standard',
+                name: 'OpenStreetMap Standard',
+                url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                subdomains: 'abc'
+            }
+        ];
+
+        const BUTUAN_LANDMARKS = [
+            { id: 'guingona-plaza', name: 'Guingona Plaza / City Center', coords: [8.9472, 125.5428], category: 'Plaza / Center', icon: 'map-pin' },
+            { id: 'fsuu-main', name: 'FSUU Main Campus', coords: [8.9482, 125.5415], category: 'School', icon: 'graduation-cap' },
+            { id: 'fsuu-morelos', name: 'FSUU Morelos Campus', coords: [8.9320, 125.5120], category: 'School', icon: 'graduation-cap', requiresTricycleFrom: 'libertad-junction' },
+            { id: 'sm-city', name: 'SM City Butuan', coords: [8.9430, 125.5340], category: 'Shopping', icon: 'shopping-bag' },
+            { id: 'csu-ampayon', name: 'CSU Ampayon Campus', coords: [8.9568, 125.5975], category: 'School', icon: 'graduation-cap' },
+            { id: 'bancasi-airport', name: 'Bancasi Airport (BXU)', coords: [8.9486, 125.4785], category: 'Airport', icon: 'plane' },
+            { id: 'libertad-junction', name: 'Libertad Bus Terminal / Junction', coords: [8.9375, 125.5180], category: 'Transit Hub', icon: 'git-merge' },
+            { id: 'langihan-terminal', name: 'Langihan Jeepney Terminal', coords: [8.9580, 125.5460], category: 'Transit Hub', icon: 'bus' },
+            { id: 'provincial-capitol', name: 'Agusan Provincial Capitol', coords: [8.9510, 125.5380], category: 'Government', icon: 'building-2' },
+            { id: 'de-oro-brgy', name: 'De Oro Barangay Hall', coords: [8.9720, 125.6180], category: 'Barangay', icon: 'map-pin' },
+            { id: 'sto-nino-brgy', name: 'Santo Niño Barangay Hall', coords: [8.9810, 125.5750], category: 'Barangay', icon: 'map-pin' }
+        ];
+
+        // Comprehensive Official LPTRP Rationalized Multicab & Local Transit Routes of Butuan City
+        const BUTUAN_PRESET_ROUTES = [
+            {
+                id: 'lptrp-r1',
+                title: 'Route 1: West & East Loop (Montilla - JC Aquino - Dumalagan)',
+                category: 'LPTRP Main Arterial',
+                mode: 'multicab',
+                originName: 'South Montilla Blvd / City Proper',
+                originCoords: [8.9472, 125.5428],
+                destName: 'Crossing Dumalagan / Bancasi',
+                destCoords: [8.9325, 125.4650]
+            },
+            {
+                id: 'lptrp-r2',
+                title: 'Route 2: City Loop via Airport (Langihan - Airport - Dumalagan)',
+                category: 'LPTRP Airport Line',
+                mode: 'multicab',
+                originName: 'Langihan Integrated Terminal',
+                originCoords: [8.9580, 125.5460],
+                destName: 'Bancasi Airport / Dumalagan',
+                destCoords: [8.9486, 125.4785]
+            },
+            {
+                id: 'lptrp-r3',
+                title: 'Route 3: Ampayon to Libertad Direct Highway',
+                category: 'LPTRP Cross-City Express',
+                mode: 'multicab',
+                originName: 'Ampayon Triangle Terminal',
+                originCoords: [8.9568, 125.5975],
+                destName: 'Libertad Overpass / Junction',
+                destCoords: [8.9375, 125.5180]
+            },
+            {
+                id: 'lptrp-r4',
+                title: 'Route 4: De Oro to Integrated Terminal',
+                category: 'LPTRP East Sector',
+                mode: 'multicab',
+                originName: 'De Oro Barangay Hall',
+                originCoords: [8.9720, 125.6180],
+                destName: 'Langihan Jeepney Terminal',
+                destCoords: [8.9580, 125.5460]
+            },
+            {
+                id: 'lptrp-r5',
+                title: 'Route 5: Santo Niño to City Proper',
+                category: 'LPTRP North Sector',
+                mode: 'multicab',
+                originName: 'Santo Niño Barangay Hall',
+                originCoords: [8.9810, 125.5750],
+                destName: 'Langihan Integrated Terminal',
+                destCoords: [8.9580, 125.5460]
+            },
+            {
+                id: 'lptrp-r6',
+                title: 'Route 6: Maguinda to Provincial Capitol',
+                category: 'LPTRP South Corridor',
+                mode: 'multicab',
+                originName: 'Maguinda Terminal',
+                originCoords: [8.8850, 125.6100],
+                destName: 'Agusan Provincial Capitol',
+                destCoords: [8.9510, 125.5380]
+            },
+            {
+                id: 'lptrp-r7',
+                title: 'Route 7: Tungao to City Center Capitol Drive',
+                category: 'LPTRP South-West Line',
+                mode: 'multicab',
+                originName: 'Tungao Terminal',
+                originCoords: [8.8350, 125.4800],
+                destName: 'Agusan Provincial Capitol',
+                destCoords: [8.9510, 125.5380]
+            },
+            {
+                id: 'bxu-r10',
+                title: 'Route 10: National Highway Express (Bancasi - City - Ampayon)',
+                category: 'Classic Multicab',
+                mode: 'multicab',
+                originName: 'Bancasi Airport Junction',
+                originCoords: [8.9486, 125.4785],
+                destName: 'CSU Ampayon Campus',
+                destCoords: [8.9568, 125.5975]
+            },
+            {
+                id: 'bxu-r12',
+                title: 'Route 12: Villa Kananga & San Vicente Line',
+                category: 'Suburban Multicab',
+                mode: 'multicab',
+                originName: 'Villa Kananga / San Vicente',
+                originCoords: [8.9380, 125.5300],
+                destName: 'Guingona Plaza / City Proper',
+                destCoords: [8.9472, 125.5428]
+            },
+            {
+                id: 'bxu-r-tryk-libertad',
+                title: 'Libertad Tricycle Shuttle to FSUU Morelos',
+                category: 'Local Tricycle Shuttle',
+                mode: 'tricycle',
+                originName: 'Libertad Junction Terminal',
+                originCoords: [8.9375, 125.5180],
+                destName: 'FSUU Morelos Campus',
+                destCoords: [8.9320, 125.5120]
+            },
+            {
+                id: 'bxu-r-tryk-city',
+                title: 'Guingona Plaza to SJIT / Montilla Inner Streets',
+                category: 'Inner City Tricycle',
+                mode: 'tricycle',
+                originName: 'Guingona Plaza',
+                originCoords: [8.9472, 125.5428],
+                destName: 'San Jose Institute of Tech (SJIT)',
+                destCoords: [8.9490, 125.5390]
+            },
+            {
+                id: 'bxu-r-tryk-langihan',
+                title: 'Langihan Market Inner Feeder Shuttle',
+                category: 'Market Tricycle Feeder',
+                mode: 'tricycle',
+                originName: 'Langihan Public Market',
+                originCoords: [8.9580, 125.5460],
+                destName: 'Obrero Residential Area',
+                destCoords: [8.9610, 125.5490]
+            },
+            {
+                id: 'bxu-taxi-airport',
+                title: 'Direct Airport Express Taxi / Grab Car',
+                category: 'Direct Taxi',
+                mode: 'driving',
+                originName: 'Bancasi Airport (BXU)',
+                originCoords: [8.9486, 125.4785],
+                destName: 'SM City Butuan',
+                destCoords: [8.9430, 125.5340]
+            },
+            {
+                id: 'bxu-car-ampayon',
+                title: 'Private Expressway Drive: SM City to CSU Ampayon',
+                category: 'Private Drive',
+                mode: 'driving',
+                originName: 'SM City Butuan',
+                originCoords: [8.9430, 125.5340],
+                destName: 'CSU Ampayon Campus',
+                destCoords: [8.9568, 125.5975]
+            }
+        ];
+
+        function getTileUrl(provider) {
+            let url = provider.url;
+            const cartoKey = localStorage.getItem('carto_api_key') || '';
+            if (cartoKey && provider.id.startsWith('carto') && !url.includes('key=')) {
+                url += (url.includes('?') ? '&' : '?') + 'key=' + encodeURIComponent(cartoKey.trim());
+            }
+            return url;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+
+        function initApp() {
+            if (typeof L === 'undefined') {
+                setTimeout(initApp, 100);
+                return;
+            }
+
+            initMap();
+            loadSavedRoutes();
+            renderEstablishmentMarkers();
+            setupEventListeners();
+            updateFilterCounts();
+            renderPresetCards();
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // Default route load: LPTRP Route 1
+            selectRoute('lptrp-r1');
+        }
+
+        function initMap() {
+            state.map = L.map('map', {
+                zoomControl: false,
+                attributionControl: true
+            }).setView([8.9492, 125.5250], 13);
+
+            L.control.zoom({ position: 'bottomright' }).addTo(state.map);
+
+            const initialTile = TILE_PROVIDERS[0];
+            state.tileLayer = L.tileLayer(getTileUrl(initialTile), {
+                maxZoom: 19,
+                subdomains: initialTile.subdomains || 'abc',
+                attribution: initialTile.attribution
+            }).addTo(state.map);
+
+            state.poiMarkersGroup = L.layerGroup().addTo(state.map);
+
+            state.map.on('click', (e) => {
+                if (state.mapPickMode) {
+                    const lat = e.latlng.lat.toFixed(5);
+                    const lng = e.latlng.lng.toFixed(5);
+                    if (state.mapPickMode === 'origin') {
+                        document.getElementById('origin-coords-input').value = `${lat}, ${lng}`;
+                        showToast(`Origin set to: ${lat}, ${lng}`);
+                    } else if (state.mapPickMode === 'destination') {
+                        document.getElementById('dest-coords-input').value = `${lat}, ${lng}`;
+                        showToast(`Destination set to: ${lat}, ${lng}`);
+                    }
+                    state.mapPickMode = null;
+                    document.getElementById('custom-route-modal').classList.remove('opacity-0', 'pointer-events-none');
+                }
+            });
+        }
+
+        function updateFilterCounts() {
+            const allCount = state.routes.length;
+            const multicabCount = state.routes.filter(r => r.mode === 'multicab').length;
+            const tricycleCount = state.routes.filter(r => r.mode === 'tricycle').length;
+            const drivingCount = state.routes.filter(r => r.mode === 'driving').length;
+
+            document.getElementById('count-all').textContent = allCount;
+            document.getElementById('count-multicab').textContent = multicabCount;
+            document.getElementById('count-tricycle').textContent = tricycleCount;
+            document.getElementById('count-driving').textContent = drivingCount;
+        }
+
+        // Render clickable Establishment Markers on map
+        function renderEstablishmentMarkers() {
+            state.poiMarkersGroup.clearLayers();
+            if (!state.showLandmarks) return;
+
+            BUTUAN_LANDMARKS.forEach(poi => {
+                const poiIcon = L.divIcon({
+                    className: 'custom-poi-icon',
+                    html: `
+                        <div class="group relative flex items-center justify-center cursor-pointer">
+                            <div class="w-8 h-8 rounded-2xl bg-amber-500/90 hover:bg-amber-400 text-black border-2 border-white shadow-xl flex items-center justify-center transition transform group-hover:scale-110">
+                                <i data-lucide="${poi.icon || 'map-pin'}" class="w-4 h-4"></i>
+                            </div>
+                        </div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                });
+
+                const marker = L.marker(poi.coords, { icon: poiIcon });
+                const popupContent = `
+                    <div class="p-1 max-w-[180px]">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-500">${poi.category}</span>
+                        <h4 class="text-xs font-bold text-slate-800 leading-tight">${poi.name}</h4>
+                        <div class="mt-2 flex flex-col gap-1">
+                            <button onclick="planCommuteToPOI('${poi.id}')" class="w-full py-1 px-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-semibold text-center shadow">
+                                Commute Here
+                            </button>
+                        </div>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+                state.poiMarkersGroup.addLayer(marker);
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function loadSavedRoutes() {
+            try {
+                const stored = localStorage.getItem('commuteflow_butuan_routes');
+                const customRoutes = stored ? JSON.parse(stored) : [];
+                state.routes = [...BUTUAN_PRESET_ROUTES, ...customRoutes];
+            } catch (e) {
+                console.warn('LocalStorage load error:', e);
+                state.routes = [...BUTUAN_PRESET_ROUTES];
+            }
+        }
+
+        function saveCustomRoute(newRoute) {
+            try {
+                const stored = localStorage.getItem('commuteflow_butuan_routes');
+                const customRoutes = stored ? JSON.parse(stored) : [];
+                customRoutes.unshift(newRoute);
+                localStorage.setItem('commuteflow_butuan_routes', JSON.stringify(customRoutes));
+                state.routes = [...BUTUAN_PRESET_ROUTES, ...customRoutes];
+                updateFilterCounts();
+                renderPresetCards();
+                selectRoute(newRoute.id);
+                showToast('New Butuan route saved!');
+            } catch (e) {
+                showToast('Failed to save route locally');
+            }
+        }
+
+        // Multi-Leg & Transfer Commute Algorithm
+        function planCommuteToPOI(destPoiId) {
+            planCommuteBetweenPOIs('guingona-plaza', destPoiId);
+        }
+
+        function planCommuteBetweenPOIs(originPoiId, destPoiId) {
+            const originPoi = BUTUAN_LANDMARKS.find(p => p.id === originPoiId) || BUTUAN_LANDMARKS[0];
+            const destPoi = BUTUAN_LANDMARKS.find(p => p.id === destPoiId) || BUTUAN_LANDMARKS[1];
+
+            if (!originPoi || !destPoi) return;
+
+            if (destPoi.requiresTricycleFrom) {
+                const transferHub = BUTUAN_LANDMARKS.find(p => p.id === destPoi.requiresTricycleFrom);
+                const leg1Route = state.routes.find(r => r.id === 'lptrp-r1') || state.routes[0];
+                const leg2Route = state.routes.find(r => r.id === 'bxu-r-tryk-libertad') || state.routes[0];
+                renderMultiLegCommute(originPoi, transferHub, destPoi, leg1Route, leg2Route);
+            } else {
+                fetchOSRMRoute(originPoi.coords, destPoi.coords).then(routeData => {
+                    const routeObj = {
+                        id: `poi-direct-${originPoi.id}-${destPoi.id}`,
+                        title: `${originPoi.name} to ${destPoi.name}`,
+                        category: 'Point-to-Point Transit',
+                        mode: 'multicab',
+                        originName: originPoi.name,
+                        originCoords: originPoi.coords,
+                        destName: destPoi.name,
+                        destCoords: destPoi.coords
+                    };
+                    state.selectedRoute = routeObj;
+                    drawRouteOnMap(routeObj, routeData);
+                    updateRouteUIBanner(routeObj, routeData);
+                    renderTurnStepsList(routeData.legs[0].steps);
+                    document.getElementById('transfer-breakdown-container').classList.add('hidden');
+                    document.getElementById('transfer-badge').classList.add('hidden');
+                });
+            }
+        }
+
+        // Handle bottom sheet minimization and expansion
+        function updateSheetPosition(minimized) {
+            state.isSheetMinimized = minimized;
+            const sheet = document.getElementById('bottom-sheet');
+            const handle = document.getElementById('sheet-handle');
+            const icon = document.getElementById('sheet-toggle-icon');
+
+            if (!sheet || !handle) return;
+
+            if (minimized) {
+                const minimizeOffset = sheet.offsetHeight - handle.offsetHeight;
+                sheet.style.transform = `translateY(${minimizeOffset}px)`;
+                if (icon) icon.classList.add('rotate-180');
+            } else {
+                sheet.style.transform = 'translateY(0px)';
+                if (icon) icon.classList.remove('rotate-180');
+            }
+        }
+
+        function toggleSheetMinimize() {
+            updateSheetPosition(!state.isSheetMinimized);
+        }
+
+        async function renderMultiLegCommute(originPoi, transferHub, destPoi, leg1Route, leg2Route) {
+            stopNavigationSimulation();
+            updateSheetPosition(false);
+
+            showToast('Calculating transfer commute route...');
+
+            const leg1Data = await fetchOSRMRoute(originPoi.coords, transferHub.coords);
+            const leg2Data = await fetchOSRMRoute(transferHub.coords, destPoi.coords);
+
+            // Clear map layers
+            if (state.routePolyline) state.map.removeLayer(state.routePolyline);
+            if (state.secondaryPolyline) state.map.removeLayer(state.secondaryPolyline);
+            if (state.originMarker) state.map.removeLayer(state.originMarker);
+            if (state.destMarker) state.map.removeLayer(state.destMarker);
+            if (state.transferMarker) state.map.removeLayer(state.transferMarker);
+
+            const leg1LatLngs = leg1Data.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+            const leg2LatLngs = leg2Data.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+
+            // Draw Leg 1 (Multicab - Blue)
+            state.routePolyline = L.polyline(leg1LatLngs, {
+                color: '#0a84ff',
+                weight: 6,
+                opacity: 0.95,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(state.map);
+
+            // Draw Leg 2 (Tricycle Transfer - Gold/Amber)
+            state.secondaryPolyline = L.polyline(leg2LatLngs, {
+                color: '#ff9f0a',
+                weight: 6,
+                dashArray: '8, 8',
+                opacity: 0.95,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(state.map);
+
+            // Origin A Marker
+            const originIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="w-7 h-7 rounded-full bg-emerald-500 text-white border-2 border-white shadow-2xl flex items-center justify-center font-bold text-xs">A</div>`,
+                iconSize: [28, 28], iconAnchor: [14, 14]
+            });
+
+            // Transfer Hub Marker
+            const transferIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="w-8 h-8 rounded-full bg-amber-500 text-black border-2 border-white shadow-2xl flex items-center justify-center font-bold text-xs"><i data-lucide="git-merge" class="w-4 h-4"></i></div>`,
+                iconSize: [32, 32], iconAnchor: [16, 16]
+            });
+
+            // Destination B Marker
+            const destIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="w-7 h-7 rounded-full bg-rose-500 text-white border-2 border-white shadow-2xl flex items-center justify-center font-bold text-xs">B</div>`,
+                iconSize: [28, 28], iconAnchor: [14, 14]
+            });
+
+            state.originMarker = L.marker(originPoi.coords, { icon: originIcon }).addTo(state.map).bindPopup(`<b>${originPoi.name}</b>`);
+            state.transferMarker = L.marker(transferHub.coords, { icon: transferIcon }).addTo(state.map).bindPopup(`<b>Transfer Point: ${transferHub.name}</b>`);
+            state.destMarker = L.marker(destPoi.coords, { icon: destIcon }).addTo(state.map).bindPopup(`<b>${destPoi.name}</b>`);
+
+            const combinedBounds = L.featureGroup([state.routePolyline, state.secondaryPolyline]).getBounds();
+            state.map.fitBounds(combinedBounds, { padding: [60, 60], animate: true });
+
+            // UI Banner Update
+            document.getElementById('active-route-name').textContent = `${originPoi.name} → ${destPoi.name}`;
+            document.getElementById('active-route-desc').textContent = `Multicab Route 1 to ${transferHub.name}, then Tricycle inside street.`;
+            document.getElementById('transfer-badge').classList.remove('hidden');
+
+            // Transfer Breakdown Widget
+            const breakdownContainer = document.getElementById('transfer-breakdown-container');
+            const legsList = document.getElementById('transfer-legs-list');
+            breakdownContainer.classList.remove('hidden');
+            legsList.innerHTML = `
+                <div class="flex items-center justify-between text-slate-200">
+                    <span class="flex items-center gap-1.5"><i data-lucide="bus" class="w-3.5 h-3.5 text-emerald-400"></i> Leg 1: Multicab (${originPoi.name} → ${transferHub.name})</span>
+                    <span class="font-semibold text-emerald-400">₱ 13.00</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-200 border-t border-white/10 pt-1">
+                    <span class="flex items-center gap-1.5"><i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Leg 2: Tricycle (${transferHub.name} → ${destPoi.name})</span>
+                    <span class="font-semibold text-amber-400">₱ 15.00</span>
+                </div>
+            `;
+
+            // Calculations
+            const totalDistKm = ((leg1Data.distance + leg2Data.distance) / 1000).toFixed(1);
+            const totalEtaMin = Math.round((leg1Data.duration + leg2Data.duration) / 60) + 3; // +3 min transfer wait time
+
+            document.getElementById('metric-eta').textContent = `${totalEtaMin} min`;
+            document.getElementById('metric-dist').textContent = `${totalDistKm} km`;
+            document.getElementById('metric-fare').textContent = `₱ 28.00`;
+
+            // Combine step directions
+            const combinedSteps = [
+                { maneuver: { type: 'depart', modifier: 'straight' }, name: `Board Multicab (Route 1) at ${originPoi.name}`, distance: leg1Data.distance },
+                { maneuver: { type: 'arrive', modifier: 'straight' }, name: `Alight at ${transferHub.name} (Transfer Point)`, distance: 0 },
+                { maneuver: { type: 'depart', modifier: 'straight' }, name: `Board Tricycle / Relik entering inner street`, distance: leg2Data.distance },
+                { maneuver: { type: 'arrive', modifier: 'straight' }, name: `Arrive at ${destPoi.name}`, distance: 0 }
+            ];
+
+            renderTurnStepsList(combinedSteps);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        async function fetchOSRMRoute(origin, dest) {
+            const coordinates = `${origin[1]},${origin[0]};${dest[1]},${dest[0]}`;
+            const url = `https://router.project-osrm.org/route/v1/driving/${coordinates}?steps=true&geometries=geojson&overview=full`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('OSRM routing failed');
+                
+                const data = await response.json();
+                if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+                    throw new Error('No route returned');
+                }
+
+                return data.routes[0];
+            } catch (err) {
+                console.warn('OSRM API Error:', err);
+                return createFallbackRoute(origin, dest);
+            }
+        }
+
+        function createFallbackRoute(origin, dest) {
+            return {
+                distance: 3500,
+                duration: 600,
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [
+                        [origin[1], origin[0]],
+                        [dest[1], dest[0]]
+                    ]
+                },
+                legs: [{
+                    steps: [
+                        {
+                            maneuver: { type: 'depart', modifier: 'straight' },
+                            name: 'Depart origin',
+                            distance: 1750,
+                            duration: 300
+                        },
+                        {
+                            maneuver: { type: 'arrive', modifier: 'straight' },
+                            name: 'Arrive at destination',
+                            distance: 1750,
+                            duration: 300
+                        }
+                    ]
+                }]
+            };
+        }
+
+        async function selectRoute(routeId) {
+            const route = state.routes.find(r => r.id === routeId);
+            if (!route) return;
+
+            state.selectedRoute = route;
+            stopNavigationSimulation();
+            updateSheetPosition(false);
+
+            document.getElementById('transfer-breakdown-container').classList.add('hidden');
+            document.getElementById('transfer-badge').classList.add('hidden');
+            if (state.secondaryPolyline) state.map.removeLayer(state.secondaryPolyline);
+            if (state.transferMarker) state.map.removeLayer(state.transferMarker);
+
+            const routeData = await fetchOSRMRoute(route.originCoords, route.destCoords);
+            
+            drawRouteOnMap(route, routeData);
+            updateRouteUIBanner(route, routeData);
+            renderTurnStepsList(routeData.legs[0].steps);
+            renderPresetCards();
+        }
+
+        function drawRouteOnMap(route, routeData) {
+            if (state.routePolyline) state.map.removeLayer(state.routePolyline);
+            if (state.originMarker) state.map.removeLayer(state.originMarker);
+            if (state.destMarker) state.map.removeLayer(state.destMarker);
+
+            const latLngs = routeData.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+
+            state.routePolyline = L.polyline(latLngs, {
+                color: '#0a84ff',
+                weight: 6,
+                opacity: 0.95,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(state.map);
+
+            const originIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="w-7 h-7 rounded-full bg-emerald-500 text-white border-2 border-white shadow-2xl flex items-center justify-center font-bold text-xs">A</div>`,
+                iconSize: [28, 28], iconAnchor: [14, 14]
+            });
+
+            const destIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="w-7 h-7 rounded-full bg-rose-500 text-white border-2 border-white shadow-2xl flex items-center justify-center font-bold text-xs">B</div>`,
+                iconSize: [28, 28], iconAnchor: [14, 14]
+            });
+
+            state.originMarker = L.marker(route.originCoords, { icon: originIcon }).addTo(state.map)
+                .bindPopup(`<b class="text-xs">${route.originName}</b>`);
+
+            state.destMarker = L.marker(route.destCoords, { icon: destIcon }).addTo(state.map)
+                .bindPopup(`<b class="text-xs">${route.destName}</b>`);
+
+            state.map.fitBounds(state.routePolyline.getBounds(), {
+                padding: [60, 60],
+                maxZoom: 16,
+                animate: true
+            });
+        }
+
+        function updateRouteUIBanner(route, routeData) {
+            document.getElementById('active-route-name').textContent = route.title;
+            document.getElementById('active-route-desc').textContent = `${route.originName} → ${route.destName}`;
+            
+            const badge = document.getElementById('active-route-badge');
+            let badgeText = 'MULTICAB';
+            if (route.mode === 'tricycle') badgeText = 'TRICYCLE / RELIK';
+            if (route.mode === 'driving') badgeText = 'PRIVATE / TAXI';
+            badge.textContent = badgeText;
+
+            const distanceKm = (routeData.distance / 1000).toFixed(1);
+            const durationMins = Math.round(routeData.duration / 60);
+
+            let estFare = 15;
+            if (route.mode === 'tricycle') {
+                estFare = Math.round(15 + (distanceKm * 5));
+            } else if (route.mode === 'multicab') {
+                estFare = Math.round(13 + (distanceKm * 2.5));
+            } else {
+                estFare = Math.round(45 + (distanceKm * 15.5));
+            }
+
+            document.getElementById('metric-eta').textContent = `${durationMins} min`;
+            document.getElementById('metric-dist').textContent = `${distanceKm} km`;
+            document.getElementById('metric-fare').textContent = `₱ ${estFare}`;
+        }
+
+        function renderTurnStepsList(steps) {
+            const container = document.getElementById('steps-list');
+            container.innerHTML = '';
+
+            document.getElementById('steps-count-badge').textContent = `${steps.length} steps`;
+
+            steps.forEach((step) => {
+                const stepEl = document.createElement('div');
+                stepEl.className = 'flex items-center gap-3 p-3 hover:bg-white/10 transition';
+
+                const iconName = getManeuverIcon(step.maneuver.type, step.maneuver.modifier);
+                const stepDist = (step.distance < 1000) 
+                    ? `${Math.round(step.distance)} m` 
+                    : `${(step.distance / 1000).toFixed(1)} km`;
+
+                stepEl.innerHTML = `
+                    <div class="p-2 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 flex-shrink-0">
+                        <i data-lucide="${iconName}" class="w-4 h-4"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold text-slate-100 truncate">${formatStepInstruction(step)}</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">${stepDist}</p>
+                    </div>
+                `;
+                container.appendChild(stepEl);
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function getManeuverIcon(type, modifier) {
+            if (type === 'depart') return 'navigation';
+            if (type === 'arrive') return 'flag';
+            if (modifier && modifier.includes('left')) return 'corner-up-left';
+            if (modifier && modifier.includes('right')) return 'corner-up-right';
+            return 'arrow-up';
+        }
+
+        function formatStepInstruction(step) {
+            if (step.maneuver.type === 'depart') return `${step.name || 'Depart from origin'}`;
+            if (step.maneuver.type === 'arrive') return `${step.name || 'Arrive at destination'}`;
+            
+            const modifier = step.maneuver.modifier ? step.maneuver.modifier.replace('-', ' ') : '';
+            const roadName = step.name ? `onto ${step.name}` : '';
+            return `Turn ${modifier} ${roadName}`.trim();
+        }
+
+        // Search Auto-complete for Establishments
+        function handleEstablishmentSearch(query) {
+            const dropdown = document.getElementById('search-results-dropdown');
+            const clearBtn = document.getElementById('clear-search-btn');
+
+            if (!query.trim()) {
+                dropdown.classList.add('hidden');
+                clearBtn.classList.add('hidden');
+                return;
+            }
+
+            clearBtn.classList.remove('hidden');
+
+            const matches = BUTUAN_LANDMARKS.filter(p => 
+                p.name.toLowerCase().includes(query.toLowerCase()) || 
+                p.category.toLowerCase().includes(query.toLowerCase())
+            );
+
+            if (matches.length === 0) {
+                dropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 text-center">No establishments found</div>`;
+            } else {
+                dropdown.innerHTML = matches.map(poi => `
+                    <div onclick="selectSearchedPOI('${poi.id}')" class="p-3 hover:bg-white/10 cursor-pointer flex items-center justify-between transition">
+                        <div class="flex items-center gap-2.5">
+                            <div class="p-2 rounded-xl bg-amber-500/20 text-amber-400">
+                                <i data-lucide="${poi.icon || 'map-pin'}" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${poi.name}</h4>
+                                <span class="text-[10px] text-slate-400">${poi.category}</span>
+                            </div>
+                        </div>
+                        <i data-lucide="arrow-right-circle" class="w-4 h-4 text-blue-400"></i>
+                    </div>
+                `).join('');
+            }
+
+            dropdown.classList.remove('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function selectSearchedPOI(poiId) {
+            document.getElementById('search-results-dropdown').classList.add('hidden');
+            document.getElementById('establishment-search-input').value = '';
+            planCommuteToPOI(poiId);
+        }
+
+        // Render Apple style horizontally scrollable snap cards
+        function renderPresetCards() {
+            const container = document.getElementById('preset-routes-container');
+            container.innerHTML = '';
+
+            const filteredRoutes = state.routes.filter(r => {
+                if (state.activeFilterMode === 'all') return true;
+                return r.mode === state.activeFilterMode;
+            });
+
+            if (filteredRoutes.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 py-2">No routes match this transport filter.</p>`;
+                return;
+            }
+
+            filteredRoutes.forEach(route => {
+                const isSelected = state.selectedRoute && state.selectedRoute.id === route.id;
+                const card = document.createElement('div');
+                
+                card.className = `scroll-item flex-shrink-0 w-56 p-3.5 rounded-2xl ios-glass-card cursor-pointer border transition-all duration-200 active:scale-95 ${
+                    isSelected 
+                        ? 'border-blue-500 ring-2 ring-blue-500/30 bg-blue-950/40' 
+                        : 'border-white/10 hover:border-white/20'
+                }`;
+
+                card.onclick = () => selectRoute(route.id);
+
+                let modeIcon = 'bus';
+                let modeColor = 'text-emerald-400';
+                if (route.mode === 'tricycle') { modeIcon = 'zap'; modeColor = 'text-amber-400'; }
+                if (route.mode === 'driving') { modeIcon = 'car'; modeColor = 'text-sky-400'; }
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wide text-slate-400 truncate max-w-[130px]">${route.category}</span>
+                        <i data-lucide="${modeIcon}" class="w-4 h-4 ${modeColor}"></i>
+                    </div>
+                    <h4 class="text-xs font-bold text-white truncate tracking-tight">${route.title}</h4>
+                    <p class="text-[10px] text-slate-400 truncate mt-1 flex items-center gap-1">
+                        <span class="truncate">${route.originName}</span>
+                        <span class="flex-shrink-0">→</span>
+                        <span class="truncate">${route.destName}</span>
+                    </p>
+                `;
+
+                container.appendChild(card);
+            });
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function locateUser() {
+            if (!navigator.geolocation) {
+                showToast('Geolocation is not supported.');
+                return;
+            }
+
+            showToast('Locating position in Butuan...');
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    state.userCoords = [lat, lng];
+
+                    if (!state.userMarker) {
+                        const userIcon = L.divIcon({
+                            className: 'custom-user-icon',
+                            html: `
+                                <div class="user-location-pulse flex items-center justify-center">
+                                    <div class="user-location-core"></div>
+                                </div>`,
+                            iconSize: [22, 22],
+                            iconAnchor: [11, 11]
+                        });
+                        state.userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(state.map)
+                            .bindPopup('<b class="text-xs">Your Location</b>');
+                    } else {
+                        state.userMarker.setLatLng([lat, lng]);
+                    }
+
+                    state.map.flyTo([lat, lng], 15, { duration: 1.5 });
+                    showToast('Centered on your GPS location');
+                },
+                (err) => {
+                    console.warn('Geolocation error:', err);
+                    showToast('Could not fetch GPS coordinates.');
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function toggleNavigationSimulation() {
+            if (state.isNavigating) {
+                stopNavigationSimulation();
+                showToast('Commute simulation stopped.');
+            } else {
+                startNavigationSimulation();
+            }
+        }
+
+        function startNavigationSimulation() {
+            if (!state.routePolyline) {
+                showToast('Select or calculate a route first.');
+                return;
+            }
+
+            state.isNavigating = true;
+            const btn = document.getElementById('start-nav-btn');
+            btn.classList.remove('bg-blue-600', 'hover:bg-blue-500');
+            btn.classList.add('bg-rose-600', 'hover:bg-rose-500');
+            btn.querySelector('span').textContent = 'End Commute';
+
+            showToast('Simulating live commute...');
+
+            let latLngs = state.routePolyline.getLatLngs();
+            if (state.secondaryPolyline) {
+                latLngs = [...latLngs, ...state.secondaryPolyline.getLatLngs()];
+            }
+
+            let index = 0;
+
+            const simIcon = L.divIcon({
+                className: 'custom-sim-icon',
+                html: `
+                    <div class="w-8 h-8 rounded-full bg-blue-500 text-white border-2 border-white shadow-2xl flex items-center justify-center font-bold text-xs">
+                        <i data-lucide="navigation" class="w-4 h-4 fill-current transform rotate-45"></i>
+                    </div>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+            if (state.simulatedMarker) state.map.removeLayer(state.simulatedMarker);
+            state.simulatedMarker = L.marker(latLngs[0], { icon: simIcon }).addTo(state.map);
+
+            state.map.flyTo(latLngs[0], 16, { duration: 1 });
+
+            state.navAnimInterval = setInterval(() => {
+                index++;
+                if (index >= latLngs.length) {
+                    stopNavigationSimulation();
+                    showToast('You reached your destination!');
+                    return;
+                }
+                const pos = latLngs[index];
+                state.simulatedMarker.setLatLng(pos);
+                state.map.panTo(pos, { animate: true });
+            }, 1000);
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function stopNavigationSimulation() {
+            state.isNavigating = false;
+            if (state.navAnimInterval) clearInterval(state.navAnimInterval);
+            if (state.simulatedMarker) {
+                state.map.removeLayer(state.simulatedMarker);
+                state.simulatedMarker = null;
+            }
+
+            const btn = document.getElementById('start-nav-btn');
+            if (btn) {
+                btn.classList.remove('bg-rose-600', 'hover:bg-rose-500');
+                btn.classList.add('bg-blue-600', 'hover:bg-blue-500');
+                btn.querySelector('span').textContent = 'Start Commute';
+            }
+        }
+
+        function setupEventListeners() {
+            // Search Input listener
+            const searchInput = document.getElementById('establishment-search-input');
+            searchInput.addEventListener('input', (e) => handleEstablishmentSearch(e.target.value));
+
+            document.getElementById('clear-search-btn').onclick = () => {
+                searchInput.value = '';
+                handleEstablishmentSearch('');
+            };
+
+            // Quick POI Chips
+            document.querySelectorAll('.quick-poi-chip').forEach(chip => {
+                chip.onclick = () => {
+                    const poiId = chip.dataset.poi;
+                    planCommuteToPOI(poiId);
+                };
+            });
+
+            const sheet = document.getElementById('bottom-sheet');
+            const handle = document.getElementById('sheet-handle');
+            const toggleBtn = document.getElementById('sheet-toggle-icon-btn');
+
+            if (toggleBtn) {
+                toggleBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleSheetMinimize();
+                };
+            }
+
+            // Drag to minimize / expand interaction (Touch & Mouse)
+            let startY = 0;
+            let initialTranslateY = 0;
+            let currentDragTranslateY = 0;
+            let dragMoved = false;
+
+            function onDragStart(pageY) {
+                state.isDraggingSheet = true;
+                dragMoved = false;
+                startY = pageY;
+                sheet.classList.add('dragging');
+                const minOffset = sheet.offsetHeight - handle.offsetHeight;
+                initialTranslateY = state.isSheetMinimized ? minOffset : 0;
+            }
+
+            function onDragMove(pageY) {
+                if (!state.isDraggingSheet) return;
+                const deltaY = pageY - startY;
+                if (Math.abs(deltaY) > 5) dragMoved = true;
+
+                const minOffset = sheet.offsetHeight - handle.offsetHeight;
+                currentDragTranslateY = Math.max(0, Math.min(minOffset, initialTranslateY + deltaY));
+                sheet.style.transform = `translateY(${currentDragTranslateY}px)`;
+            }
+
+            function onDragEnd() {
+                if (!state.isDraggingSheet) return;
+                state.isDraggingSheet = false;
+                sheet.classList.remove('dragging');
+
+                if (!dragMoved) {
+                    toggleSheetMinimize();
+                    return;
+                }
+
+                const minOffset = sheet.offsetHeight - handle.offsetHeight;
+                const threshold = minOffset / 3;
+
+                if (state.isSheetMinimized) {
+                    // Dragging UP from minimized
+                    if (currentDragTranslateY < minOffset - threshold) {
+                        updateSheetPosition(false);
+                    } else {
+                        updateSheetPosition(true);
+                    }
+                } else {
+                    // Dragging DOWN from expanded
+                    if (currentDragTranslateY > threshold) {
+                        updateSheetPosition(true);
+                    } else {
+                        updateSheetPosition(false);
+                    }
+                }
+            }
+
+            handle.addEventListener('touchstart', (e) => {
+                onDragStart(e.touches[0].pageY);
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                if (state.isDraggingSheet) {
+                    onDragMove(e.touches[0].pageY);
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchend', () => {
+                onDragEnd();
+            });
+
+            handle.addEventListener('mousedown', (e) => {
+                onDragStart(e.pageY);
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (state.isDraggingSheet) {
+                    onDragMove(e.pageY);
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                onDragEnd();
+            });
+
+            window.addEventListener('resize', () => {
+                if (state.isSheetMinimized) {
+                    updateSheetPosition(true);
+                }
+            });
+
+            // Toggle POI Markers button
+            document.getElementById('toggle-poi-btn').onclick = () => {
+                state.showLandmarks = !state.showLandmarks;
+                renderEstablishmentMarkers();
+                showToast(state.showLandmarks ? 'Landmarks visible' : 'Landmarks hidden');
+            };
+
+            document.getElementById('gps-btn').onclick = locateUser;
+
+            document.getElementById('fit-bounds-btn').onclick = () => {
+                if (state.routePolyline) {
+                    let group = L.featureGroup([state.routePolyline]);
+                    if (state.secondaryPolyline) group.addLayer(state.secondaryPolyline);
+                    state.map.fitBounds(group.getBounds(), { padding: [60, 60], animate: true });
+                }
+            };
+
+            document.getElementById('tile-toggle-btn').onclick = () => {
+                state.currentStyleIndex = (state.currentStyleIndex + 1) % TILE_PROVIDERS.length;
+                const newProvider = TILE_PROVIDERS[state.currentStyleIndex];
+                
+                state.map.removeLayer(state.tileLayer);
+                state.tileLayer = L.tileLayer(getTileUrl(newProvider), {
+                    maxZoom: 19,
+                    subdomains: newProvider.subdomains || 'abc',
+                    attribution: newProvider.attribution
+                }).addTo(state.map);
+
+                showToast(`Map style: ${newProvider.name}`);
+            };
+
+            const keyModal = document.getElementById('api-key-modal');
+            const keyInput = document.getElementById('carto-api-key-input');
+
+            document.getElementById('key-settings-btn').onclick = () => {
+                keyInput.value = localStorage.getItem('carto_api_key') || '';
+                keyModal.classList.remove('opacity-0', 'pointer-events-none');
+            };
+
+            document.getElementById('close-key-modal-btn').onclick = () => {
+                keyModal.classList.add('opacity-0', 'pointer-events-none');
+            };
+
+            document.getElementById('clear-key-btn').onclick = () => {
+                localStorage.removeItem('carto_api_key');
+                keyInput.value = '';
+                showToast('CARTO API Key cleared');
+                keyModal.classList.add('opacity-0', 'pointer-events-none');
+                
+                // Refresh map tile
+                const currentProvider = TILE_PROVIDERS[state.currentStyleIndex];
+                state.map.removeLayer(state.tileLayer);
+                state.tileLayer = L.tileLayer(getTileUrl(currentProvider), {
+                    maxZoom: 19,
+                    subdomains: currentProvider.subdomains || 'abc',
+                    attribution: currentProvider.attribution
+                }).addTo(state.map);
+            };
+
+            document.getElementById('save-key-form').onsubmit = (e) => {
+                e.preventDefault();
+                const keyVal = keyInput.value.trim();
+                if (keyVal) {
+                    localStorage.setItem('carto_api_key', keyVal);
+                    showToast('CARTO API Key saved!');
+                } else {
+                    localStorage.removeItem('carto_api_key');
+                    showToast('CARTO API Key cleared');
+                }
+                keyModal.classList.add('opacity-0', 'pointer-events-none');
+
+                // Reload tile layer with new API key
+                const currentProvider = TILE_PROVIDERS[state.currentStyleIndex];
+                state.map.removeLayer(state.tileLayer);
+                state.tileLayer = L.tileLayer(getTileUrl(currentProvider), {
+                    maxZoom: 19,
+                    subdomains: currentProvider.subdomains || 'abc',
+                    attribution: currentProvider.attribution
+                }).addTo(state.map);
+            };
+
+            // Segmented Control filter buttons
+            document.querySelectorAll('.segmented-btn').forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelectorAll('.segmented-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+                    state.activeFilterMode = btn.dataset.mode;
+                    renderPresetCards();
+                };
+            });
+
+            document.getElementById('start-nav-btn').onclick = toggleNavigationSimulation;
+
+            document.getElementById('view-steps-btn').onclick = () => {
+                const section = document.getElementById('turn-directions-section');
+                section.classList.toggle('hidden');
+                section.classList.toggle('flex');
+                if (!section.classList.contains('hidden')) {
+                    section.scrollIntoView({ behavior: 'smooth' });
+                }
+            };
+
+            const modal = document.getElementById('custom-route-modal');
+            document.getElementById('open-add-modal-btn').onclick = () => {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+            };
+            document.getElementById('close-modal-btn').onclick = () => {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            };
+
+            document.getElementById('pick-origin-map-btn').onclick = () => {
+                state.mapPickMode = 'origin';
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                showToast('Tap anywhere on the map to set Origin');
+            };
+            document.getElementById('pick-dest-map-btn').onclick = () => {
+                state.mapPickMode = 'destination';
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                showToast('Tap anywhere on the map to set Destination');
+            };
+
+            document.getElementById('use-current-gps-origin-btn').onclick = () => {
+                if (state.userCoords) {
+                    document.getElementById('origin-coords-input').value = `${state.userCoords[0].toFixed(5)}, ${state.userCoords[1].toFixed(5)}`;
+                    showToast('GPS coords set as Start!');
+                } else {
+                    locateUser();
+                }
+            };
+
+            document.getElementById('create-route-form').onsubmit = (e) => {
+                e.preventDefault();
+                const title = document.getElementById('route-title-input').value.trim();
+                const category = document.getElementById('route-cat-input').value.trim() || 'Custom Route';
+                const mode = document.getElementById('route-mode-select').value;
+                const originRaw = document.getElementById('origin-coords-input').value.split(',');
+                const destRaw = document.getElementById('dest-coords-input').value.split(',');
+
+                if (originRaw.length < 2 || destRaw.length < 2) {
+                    showToast('Please enter valid Lat, Lng coordinates.');
+                    return;
+                }
+
+                const originCoords = [parseFloat(originRaw[0].trim()), parseFloat(originRaw[1].trim())];
+                const destCoords = [parseFloat(destRaw[0].trim()), parseFloat(destRaw[1].trim())];
+
+                const newRoute = {
+                    id: 'bxu-custom-' + Date.now(),
+                    title: title,
+                    category: category,
+                    mode: mode,
+                    originName: 'Custom Start',
+                    originCoords: originCoords,
+                    destName: 'Custom Destination',
+                    destCoords: destCoords
+                };
+
+                saveCustomRoute(newRoute);
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                document.getElementById('create-route-form').reset();
+            };
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('opacity-0', '-translate-y-4', 'pointer-events-none');
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-4', 'pointer-events-none');
+            }, 2800);
+        }
+    </script>
+</body>
+</html>
