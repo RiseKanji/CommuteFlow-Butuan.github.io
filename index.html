@@ -558,10 +558,6 @@
             deOro: { name: "De Oro", coords: [8.9100, 125.6300] }
         };
 
-        // -------------------------------------------------------------
-        // DIRECT STRAIGHT HIGHWAY SEGMENT: BRIDGE -> CSU AMPAYON
-        // Corresponds to Baan Viaduct -> Nissan -> Tiniwisan Crossing -> CSU Ampayon
-        // -------------------------------------------------------------
         const STRAIGHT_HIGHWAY_EAST = [
             LANDMARKS.baan.coords,
             LANDMARKS.nissan.coords,
@@ -570,114 +566,43 @@
         ];
 
         // -------------------------------------------------------------
-        // OFFICIAL LPTRP ROUTES (R1 - R7) ACCORDING TO ORDINANCE 7194-2024
+        // OFFICIAL LPTRP ROUTES (R1 - R7)
         // -------------------------------------------------------------
         const ROUTES = {
             R1: {
-                id: "R1",
-                num: 1,
-                name: "Route 1 (North Montilla - Libertad - Bancasi)",
-                shortName: "Route 1",
-                vehicle: "R1 Multicab / PUJ",
-                color: "#EF4444",
+                id: "R1", num: 1, name: "Route 1 (North Montilla - Libertad - Bancasi)", shortName: "Route 1", vehicle: "R1 Multicab / PUJ", color: "#EF4444",
                 desc: "North Montilla Blvd - City Proper Loop - South Montilla Blvd - J.C. Aquino Ave - Libertad - Bancasi - Crossing Dumalagan vice versa",
-                waypoints: [
-                    LANDMARKS.langihan.coords,
-                    [8.9550, 125.5410],
-                    LANDMARKS.guingona.coords,
-                    LANDMARKS.cityhall.coords,
-                    LANDMARKS.libertad.coords,
-                    LANDMARKS.bancasi.coords
-                ]
+                waypoints: [LANDMARKS.langihan.coords, [8.9550, 125.5410], LANDMARKS.guingona.coords, LANDMARKS.cityhall.coords, LANDMARKS.libertad.coords, LANDMARKS.bancasi.coords]
             },
             R2: {
-                id: "R2",
-                num: 2,
-                name: "Route 2 (JAQNO - Ampayon Line)",
-                shortName: "Route 2",
-                vehicle: "R2 Blue PUJ (Ampayon Line)",
-                color: "#3B82F6",
+                id: "R2", num: 2, name: "Route 2 (JAQNO - Ampayon Line)", shortName: "Route 2", vehicle: "R2 Blue PUJ (Ampayon Line)", color: "#3B82F6",
                 desc: "JAQNO - BCES/ANHS - A. D. Curato St - G. Flores Ave - North Montilla Blvd - Jeepney Terminal - Langihan - Rosales Ave - Libertad - Bancasi vice versa",
-                waypoints: [
-                    LANDMARKS.guingona.coords,
-                    LANDMARKS.robinsons.coords,
-                    ...STRAIGHT_HIGHWAY_EAST
-                ]
+                waypoints: [LANDMARKS.guingona.coords, LANDMARKS.robinsons.coords, ...STRAIGHT_HIGHWAY_EAST]
             },
             R3: {
-                id: "R3",
-                num: 3,
-                name: "Route 3 (Ampayon - Libertad Line)",
-                shortName: "Route 3",
-                vehicle: "R3 Green PUJ (Libertad Line)",
-                color: "#10B981",
+                id: "R3", num: 3, name: "Route 3 (Ampayon - Libertad Line)", shortName: "Route 3", vehicle: "R3 Green PUJ (Libertad Line)", color: "#10B981",
                 desc: "Libertad - JAQNO - FSUU/Plaza - Ampayon Public Market - Ampayon Triangle vice versa",
-                waypoints: [
-                    LANDMARKS.libertad.coords,
-                    LANDMARKS.cityhall.coords,
-                    LANDMARKS.guingona.coords,
-                    LANDMARKS.fsuu.coords,
-                    ...STRAIGHT_HIGHWAY_EAST
-                ]
+                waypoints: [LANDMARKS.libertad.coords, LANDMARKS.cityhall.coords, LANDMARKS.guingona.coords, LANDMARKS.fsuu.coords, ...STRAIGHT_HIGHWAY_EAST]
             },
             R4: {
-                id: "R4",
-                num: 4,
-                name: "Route 4 (De Oro Line)",
-                shortName: "Route 4",
-                vehicle: "R4 Purple PUJ (De Oro Line)",
-                color: "#A855F7",
+                id: "R4", num: 4, name: "Route 4 (De Oro Line)", shortName: "Route 4", vehicle: "R4 Purple PUJ (De Oro Line)", color: "#A855F7",
                 desc: "Jeepney Terminal - Rosales Ave - JAQNO - R. Calo St - T. Sanchez St - M. Calo St - Ampayon - De Oro vice versa",
-                waypoints: [
-                    LANDMARKS.langihan.coords,
-                    ...STRAIGHT_HIGHWAY_EAST,
-                    LANDMARKS.deOro.coords
-                ]
+                waypoints: [LANDMARKS.langihan.coords, ...STRAIGHT_HIGHWAY_EAST, LANDMARKS.deOro.coords]
             },
             R5: {
-                id: "R5",
-                num: 5,
-                name: "Route 5 (Santo Niño Line)",
-                shortName: "Route 5",
-                vehicle: "R5 Orange PUJ (Santo Niño Line)",
-                color: "#F59E0B",
+                id: "R5", num: 5, name: "Route 5 (Santo Niño Line)", shortName: "Route 5", vehicle: "R5 Orange PUJ (Santo Niño Line)", color: "#F59E0B",
                 desc: "Jeepney Terminal - North Montilla Blvd - JAQNO - R. Calo St - T. Sanchez St - M. Calo St - Ampayon - Santo Niño vice versa",
-                waypoints: [
-                    LANDMARKS.langihan.coords,
-                    LANDMARKS.fsuu.coords,
-                    ...STRAIGHT_HIGHWAY_EAST,
-                    LANDMARKS.santoNino.coords
-                ]
+                waypoints: [LANDMARKS.langihan.coords, LANDMARKS.fsuu.coords, ...STRAIGHT_HIGHWAY_EAST, LANDMARKS.santoNino.coords]
             },
             R6: {
-                id: "R6",
-                num: 6,
-                name: "Route 6 (Maguinda Line)",
-                shortName: "Route 6",
-                vehicle: "R6 Yellow PUJ (Maguinda Line)",
-                color: "#EAB308",
+                id: "R6", num: 6, name: "Route 6 (Maguinda Line)", shortName: "Route 6", vehicle: "R6 Yellow PUJ (Maguinda Line)", color: "#EAB308",
                 desc: "Capitol Terminal - Capitol Drive - Guingona Ave - Z. Pizarro St - Montilla Blvd - Mayor Democrito D. Plaza II Ave - Mahay - Lemon - Maguinda vice versa",
-                waypoints: [
-                    LANDMARKS.capitol.coords,
-                    LANDMARKS.guingona.coords,
-                    [8.9300, 125.5600],
-                    LANDMARKS.maguinda.coords
-                ]
+                waypoints: [LANDMARKS.capitol.coords, LANDMARKS.guingona.coords, [8.9300, 125.5600], LANDMARKS.maguinda.coords]
             },
             R7: {
-                id: "R7",
-                num: 7,
-                name: "Route 7 (Tungao Line)",
-                shortName: "Route 7",
-                vehicle: "R7 Light Green PUJ (Tungao Line)",
-                color: "#22C55E",
+                id: "R7", num: 7, name: "Route 7 (Tungao Line)", shortName: "Route 7", vehicle: "R7 Light Green PUJ (Tungao Line)", color: "#22C55E",
                 desc: "Capitol Terminal - Rosales Ave - S. Calo St - Montilla Blvd - San Vicente - Tungao vice versa",
-                waypoints: [
-                    LANDMARKS.capitol.coords,
-                    LANDMARKS.langihan.coords,
-                    [8.9000, 125.5000],
-                    LANDMARKS.tungao.coords
-                ]
+                waypoints: [LANDMARKS.capitol.coords, LANDMARKS.langihan.coords, [8.9000, 125.5000], LANDMARKS.tungao.coords]
             }
         };
 
@@ -835,7 +760,10 @@
             }
         });
 
-        // Search Autocomplete helper
+        // -------------------------------------------------------------
+        // LIVE OPENSTREETMAP NOMINATIM PLACE SEARCH
+        // -------------------------------------------------------------
+        const SEARCH_VIEWBOX = '125.40,9.10,125.70,8.80';
         let selectedDest = null;
         function esc(str) { return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
@@ -848,6 +776,7 @@
             function close() {
                 clearTimeout(debounceTimer);
                 if (controller) controller.abort();
+                remote = { state: 'idle', items: [] };
                 menu.classList.add('hidden');
                 menu.innerHTML = '';
             }
@@ -871,25 +800,74 @@
             }
 
             function render() {
-                const q = input.value.trim().toLowerCase();
+                const q = input.value.trim();
+                const ql = q.toLowerCase();
                 menu.innerHTML = '';
+
                 if (!q) {
                     leadingItems.forEach(it => addItem({ icon: it.icon, title: it.title, sub: it.sub, pick: () => { input.value = ''; clearBtn.classList.add('hidden'); it.pick(); } }));
                 }
-                const local = Object.values(LANDMARKS).filter(lm => !q || lm.name.toLowerCase().includes(q));
+
+                const local = Object.values(LANDMARKS).filter(lm => !ql || lm.name.toLowerCase().includes(ql));
                 if (local.length) {
                     addHeader('LPTRP Landmarks & Terminals');
                     local.forEach(lm => addItem({ icon: 'landmark', title: lm.name, sub: 'Butuan Landmark', pick: () => pickPlace(lm.name, lm.coords) }));
                 }
+
+                if (q.length >= 3 && remote.state !== 'idle') {
+                    addHeader('OpenStreetMap results');
+                    if (remote.state === 'loading') {
+                        addNote('Searching OpenStreetMap…');
+                    } else if (remote.state === 'error') {
+                        addNote("Couldn't reach search service.");
+                    } else if (remote.items.length === 0) {
+                        addNote('No additional places found.');
+                    } else {
+                        remote.items.forEach(r => addItem({ icon: 'map-pin', title: r.name, sub: r.full, pick: () => pickPlace(r.name, r.coords) }));
+                    }
+                }
+
                 menu.classList.remove('hidden');
                 lucide.createIcons();
             }
 
+            async function search(q) {
+                controller = new AbortController();
+                const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=ph&viewbox=${SEARCH_VIEWBOX}&bounded=1&q=${encodeURIComponent(q)}`;
+                try {
+                    const res = await fetch(url, { signal: controller.signal, headers: { 'Accept-Language': 'en' } });
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const data = await res.json();
+                    remote = {
+                        state: 'done',
+                        items: data.map(r => ({
+                            name: (r.name || r.display_name.split(',')[0]).trim(),
+                            full: r.display_name,
+                            coords: [parseFloat(r.lat), parseFloat(r.lon)]
+                        }))
+                    };
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    remote = { state: 'error', items: [] };
+                }
+                if (!menu.classList.contains('hidden') && input.value.trim() === q) render();
+            }
+
             input.addEventListener('input', () => {
+                const q = input.value.trim();
                 clearBtn.classList.toggle('hidden', !input.value);
                 if (onType) onType(input.value);
+                clearTimeout(debounceTimer);
+                if (controller) controller.abort();
+                if (q.length >= 3) {
+                    remote = { state: 'loading', items: [] };
+                    debounceTimer = setTimeout(() => search(q), 500);
+                } else {
+                    remote = { state: 'idle', items: [] };
+                }
                 render();
             });
+
             input.addEventListener('focus', () => { input.select(); render(); });
             clearBtn.addEventListener('click', (e) => {
                 e.stopPropagation(); input.value = ''; clearBtn.classList.add('hidden'); if (onClear) onClear(); input.focus(); render();
@@ -904,7 +882,8 @@
             clearBtn: document.getElementById('origin-clear'),
             leadingItems: [{ icon: 'crosshair', title: 'Pinned map location', sub: 'Tap map to set start point', pick: () => { originMode.value = 'gps'; } }],
             onPick: ({ name, coords }) => { originMode.value = 'place'; setUserLocation(coords[0], coords[1], name); map.panTo(coords); },
-            onClear: () => { originMode.value = 'gps'; }
+            onClear: () => { originMode.value = 'gps'; },
+            onType: (v) => { if (!v.trim()) originMode.value = 'gps'; }
         });
 
         createPlaceSearch({
@@ -912,10 +891,13 @@
             menu: document.getElementById('destination-menu'),
             clearBtn: document.getElementById('destination-clear'),
             onPick: ({ name, coords }) => { selectedDest = { name, coords }; },
-            onClear: () => { selectedDest = null; }
+            onClear: () => { selectedDest = null; },
+            onType: (v) => { if (selectedDest && v !== selectedDest.name) selectedDest = null; }
         });
 
-        // Routing calculation logic
+        // -------------------------------------------------------------
+        // ROUTING & CALCULATION LOGIC
+        // -------------------------------------------------------------
         function getDistance(c1, c2) {
             const R = 6371;
             const dLat = (c2[0] - c1[0]) * Math.PI / 180;
@@ -994,7 +976,7 @@
         async function previewRoute(routeId) {
             const route = ROUTES[routeId];
             if (!route) return;
-            document.getElementById('loading-indicator').classList.remove('hidden');
+            document.getElementById('loading-indicator').classList.add('hidden');
 
             let geometry = routeGeometryCache[route.id];
             if (!geometry) {
