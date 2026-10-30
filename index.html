@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#FAF3DD">
+    <meta name="theme-color" content="#E7D7C1">
     <title>CommuteFlow Butuan - LPTRP Route Navigator (MD3)</title>
 
     <!-- Tailwind CSS -->
@@ -13,11 +13,11 @@
             theme: {
                 extend: {
                     colors: {
-                        eggshell: '#FAF3DD',
-                        teaGreen: '#C8D5B9',
-                        mutedTeal: '#8FC0A9',
-                        tropicalTeal: '#68B0AB',
-                        blueSlate: '#696D7D',
+                        bloodRed: '#8C1C13',
+                        blushedBrick: '#BF4342',
+                        almondCream: '#E7D7C1',
+                        dustyTaupe: '#A78A7F',
+                        mauveBark: '#735751',
                         r1: '#EF4444',
                         r2: '#3B82F6',
                         r3: '#10B981',
@@ -42,26 +42,26 @@
 
     <style>
         :root {
-            --md-surface: #FAF3DD;
-            --md-surface-container: #EEEDD6;
-            --md-surface-container-high: #E4E6CE;
-            --md-on-surface: #2A2D38;
-            --md-on-surface-variant: #555968;
-            --md-outline: #696D7D;
-            --md-outline-variant: rgba(105, 109, 125, 0.28);
+            --md-surface: #E7D7C1;
+            --md-surface-container: #DFCEB5;
+            --md-surface-container-high: #D4C3A9;
+            --md-on-surface: #3D2925;
+            --md-on-surface-variant: #735751;
+            --md-outline: #A78A7F;
+            --md-outline-variant: rgba(115, 87, 81, 0.25);
 
-            --md-primary: #68B0AB;
-            --md-on-primary: #0B2B2A;
-            --md-primary-strong: #3F8E89;
-            --md-primary-text: #2F6F6B;
+            --md-primary: #8C1C13;
+            --md-on-primary: #FFFFFF;
+            --md-primary-strong: #6E150E;
+            --md-primary-text: #8C1C13;
 
-            --md-secondary-container: #C8D5B9;
-            --md-on-secondary-container: #27382D;
-            --md-tertiary-container: #8FC0A9;
-            --md-on-tertiary-container: #1F4A3F;
+            --md-secondary-container: #BF4342;
+            --md-on-secondary-container: #FFFFFF;
+            --md-tertiary-container: #A78A7F;
+            --md-on-tertiary-container: #FFFFFF;
 
-            --md-elev-2: 0 2px 6px rgba(42, 45, 56, 0.18), 0 1px 2px rgba(42, 45, 56, 0.12);
-            --md-elev-3: 0 4px 12px rgba(42, 45, 56, 0.22), 0 1px 4px rgba(42, 45, 56, 0.14);
+            --md-elev-2: 0 2px 6px rgba(61, 41, 37, 0.18), 0 1px 2px rgba(61, 41, 37, 0.12);
+            --md-elev-3: 0 4px 12px rgba(61, 41, 37, 0.22), 0 1px 4px rgba(61, 41, 37, 0.14);
         }
 
         * {
@@ -83,7 +83,7 @@
             height: 100%;
             width: 100%;
             z-index: 1;
-            background: #E9E6D3;
+            background: #D8C7AD;
         }
 
         /* Zoom-dependent label visibility */
@@ -98,7 +98,7 @@
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(105, 109, 125, 0.55); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb { background: rgba(115, 87, 81, 0.45); border-radius: 9999px; }
 
         .md-state { position: relative; overflow: hidden; }
         .md-state::after {
@@ -120,7 +120,7 @@
         @media (min-width: 768px) {
             #sidebar {
                 z-index: 20;
-                box-shadow: 4px 0 24px rgba(42, 45, 56, 0.16);
+                box-shadow: 4px 0 24px rgba(61, 41, 37, 0.16);
             }
         }
 
@@ -182,7 +182,7 @@
             cursor: pointer;
             z-index: 3;
         }
-        .md-field-clear:hover { background: rgba(105, 109, 125, 0.14); }
+        .md-field-clear:hover { background: rgba(115, 87, 81, 0.14); }
 
         .md-menu {
             background: var(--md-surface);
@@ -304,23 +304,23 @@
             font-size: 11px;
             font-weight: 500;
             letter-spacing: 0.4px;
-            background: rgba(143, 192, 169, 0.35);
-            color: var(--md-on-tertiary-container);
-            border: 1px solid rgba(143, 192, 169, 0.9);
+            background: rgba(191, 67, 66, 0.15);
+            color: var(--md-primary);
+            border: 1px solid rgba(191, 67, 66, 0.4);
         }
         .md-badge--ok {
-            background: rgba(143, 192, 169, 0.35);
-            color: var(--md-on-tertiary-container);
-            border: 1px solid rgba(143, 192, 169, 0.9);
+            background: rgba(191, 67, 66, 0.15);
+            color: var(--md-primary);
+            border: 1px solid rgba(191, 67, 66, 0.4);
         }
         .md-badge--warn {
             background: rgba(245, 158, 11, 0.2);
-            color: #6B4A00;
+            color: #7B4B00;
             border: 1px solid rgba(245, 158, 11, 0.7);
         }
 
         .md-card { background: var(--md-surface-container); border-radius: 24px; }
-        .md-stats { background: rgba(200, 213, 185, 0.55); border-radius: 24px; color: var(--md-on-secondary-container); }
+        .md-stats { background: rgba(167, 138, 127, 0.25); border-radius: 24px; color: var(--md-on-surface); }
         .md-step { background: var(--md-surface-container); border-radius: 20px; padding: 14px; display: flex; align-items: flex-start; gap: 12px; }
         .md-step-num { width: 28px; height: 28px; border-radius: 9999px; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
@@ -356,9 +356,9 @@
             width: 22px;
             height: 22px;
             background-color: var(--md-primary);
-            border: 3px solid #FAF3DD;
+            border: 3px solid #E7D7C1;
             border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(104, 176, 171, 0.8), 0 2px 6px rgba(42, 45, 56, 0.35);
+            box-shadow: 0 0 0 0 rgba(140, 28, 19, 0.8), 0 2px 6px rgba(61, 41, 37, 0.35);
         }
 
         .leaflet-popup-content-wrapper {
@@ -397,7 +397,7 @@
                 transform: translateY(calc(100% - 76px));
                 transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
                 z-index: 40;
-                box-shadow: 0 -4px 20px rgba(42, 45, 56, 0.22);
+                box-shadow: 0 -4px 20px rgba(61, 41, 37, 0.22);
             }
             #sidebar.drawer-open { transform: translateY(0%); }
             .leaflet-bottom { bottom: 76px; }
@@ -407,7 +407,7 @@
 <body class="antialiased flex flex-col md:flex-row h-full w-full relative select-none">
 
     <!-- Mobile Drawer Scrim -->
-    <div id="drawer-overlay" class="fixed inset-0 backdrop-blur-[2px] z-30 hidden md:hidden transition-opacity" style="background: rgba(42, 45, 56, 0.40);"></div>
+    <div id="drawer-overlay" class="fixed inset-0 backdrop-blur-[2px] z-30 hidden md:hidden transition-opacity" style="background: rgba(61, 41, 37, 0.40);"></div>
 
     <!-- Sidebar / MD3 Bottom Sheet -->
     <div id="sidebar" class="md-sheet flex flex-col w-full md:w-[460px] md:relative md:translate-y-0 md:h-full rounded-t-[28px] md:rounded-t-none md:rounded-r-[28px] overflow-hidden">
@@ -482,9 +482,9 @@
             </div>
 
             <!-- Loading Indicator -->
-            <div id="loading-indicator" class="hidden p-4 rounded-2xl flex items-center gap-3" style="background: rgba(143, 192, 169, 0.3);">
-                <div class="w-5 h-5 rounded-full animate-spin" style="border: 2px solid var(--md-primary-strong); border-top-color: transparent;"></div>
-                <span class="text-xs font-medium">Snapping route geometry from OSRM...</span>
+            <div id="loading-indicator" class="hidden p-4 rounded-2xl flex items-center gap-3" style="background: rgba(191, 67, 66, 0.2);">
+                <div class="w-5 h-5 rounded-full animate-spin" style="border: 2px solid var(--md-primary); border-top-color: transparent;"></div>
+                <span class="text-xs font-medium" style="color: var(--md-on-surface);">Snapping route geometry from OSRM...</span>
             </div>
 
             <!-- Route Result -->
@@ -496,7 +496,7 @@
                     </h2>
                     <div class="flex items-center gap-2">
                         <span id="transfers-badge" class="md-badge md-badge--ok">Direct Route</span>
-                        <button id="cancel-route-btn" title="Cancel Route" class="px-2.5 py-1 text-xs font-medium rounded-lg border border-red-300 text-red-600 hover:bg-red-50 flex items-center gap-1 cursor-pointer">
+                        <button id="cancel-route-btn" title="Cancel Route" class="px-2.5 py-1 text-xs font-medium rounded-lg border border-red-400 text-red-700 hover:bg-red-100 flex items-center gap-1 cursor-pointer">
                             <i data-lucide="x" class="w-3.5 h-3.5"></i> Cancel
                         </button>
                     </div>
@@ -504,11 +504,11 @@
 
                 <div class="md-stats grid grid-cols-2 text-center">
                     <div class="py-4">
-                        <span class="md-label-small block mb-0.5" style="color: var(--md-on-secondary-container); opacity: 0.8;">Road Distance</span>
+                        <span class="md-label-small block mb-0.5" style="opacity: 0.8;">Road Distance</span>
                         <span id="dist-val" class="text-[22px] leading-7 font-medium">-- km</span>
                     </div>
-                    <div class="py-4" style="border-left: 1px solid rgba(39, 56, 45, 0.18);">
-                        <span class="md-label-small block mb-0.5" style="color: var(--md-on-secondary-container); opacity: 0.8;">Est. Trip Time</span>
+                    <div class="py-4" style="border-left: 1px solid rgba(115, 87, 81, 0.25);">
+                        <span class="md-label-small block mb-0.5" style="opacity: 0.8;">Est. Trip Time</span>
                         <span id="time-val" class="text-[22px] leading-7 font-medium">-- mins</span>
                     </div>
                 </div>
@@ -711,7 +711,7 @@
                 }
                 const pathCoords = geometry ? geometry.coordinates : route.waypoints;
 
-                L.polyline(pathCoords, { color: '#FAF3DD', weight: 7, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }).addTo(staticRoutesGroup);
+                L.polyline(pathCoords, { color: '#E7D7C1', weight: 7, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }).addTo(staticRoutesGroup);
                 const line = L.polyline(pathCoords, { color: route.color, weight: 3.5, opacity: 0.9 }).addTo(staticRoutesGroup);
                 line.bindTooltip(`<b>${route.name}</b>`, { sticky: true });
             }
@@ -722,7 +722,7 @@
         Object.entries(LANDMARKS).forEach(([key, lm]) => {
             const landmarkIcon = L.divIcon({
                 className: 'custom-landmark-pin',
-                html: `<div style="display:flex; align-items:center; gap:5px; pointer-events:none;"><div style="width:7px; height:7px; background:#3F8E89; border:1.5px solid #FAF3DD; border-radius:50%; box-shadow:0 1px 3px rgba(42,45,56,0.3);"></div><div style="background:rgba(250,243,221,0.95); color:#2A2D38; font-size:9px; font-weight:500; letter-spacing:0.2px; padding:2px 6px; border-radius:6px; border:1px solid rgba(105,109,125,0.3); box-shadow:0 1px 4px rgba(42,45,56,0.2); white-space:nowrap;">${lm.name}</div></div>`,
+                html: `<div style="display:flex; align-items:center; gap:5px; pointer-events:none;"><div style="width:7px; height:7px; background:#8C1C13; border:1.5px solid #E7D7C1; border-radius:50%; box-shadow:0 1px 3px rgba(61,41,37,0.3);"></div><div style="background:rgba(231,215,193,0.95); color:#3D2925; font-size:9px; font-weight:500; letter-spacing:0.2px; padding:2px 6px; border-radius:6px; border:1px solid rgba(115,87,81,0.3); box-shadow:0 1px 4px rgba(61,41,37,0.2); white-space:nowrap;">${lm.name}</div></div>`,
                 iconSize: [120, 16],
                 iconAnchor: [4, 8]
             });
@@ -973,7 +973,7 @@
             if (endMarker) map.removeLayer(endMarker);
             const destIcon = L.divIcon({
                 className: 'dest-pin-wrapper',
-                html: `<div style="background:#68B0AB; color:#0B2B2A; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:9999px; border:3px solid #FAF3DD; box-shadow:0 3px 10px rgba(42,45,56,0.35);"><i data-lucide="map-pin" class="w-4 h-4"></i></div>`,
+                html: `<div style="background:#8C1C13; color:#FFFFFF; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:9999px; border:3px solid #E7D7C1; box-shadow:0 3px 10px rgba(61,41,37,0.35);"><i data-lucide="map-pin" class="w-4 h-4"></i></div>`,
                 iconSize: [36, 36], iconAnchor: [18, 18]
             });
             endMarker = L.marker(destCoords, { icon: destIcon }).addTo(map);
@@ -1021,7 +1021,7 @@
                     if (feederRes) {
                         totalDist += parseFloat(feederRes.distance);
                         totalDuration += feederRes.duration;
-                        L.polyline(feederRes.coordinates, { color: '#F59E0B', weight: 6, dashArray: '6, 8', opacity: 0.9 }).addTo(activeHighlightGroup);
+                        L.polyline(feederRes.coordinates, { color: '#BF4342', weight: 6, dashArray: '6, 8', opacity: 0.9 }).addTo(activeHighlightGroup);
                     }
                 }
 
@@ -1039,10 +1039,10 @@
                 document.getElementById('instructions-container').innerHTML = `
                     ${minStartDist > 0.3 ? `
                     <div class="md-step">
-                        <div class="md-step-num" style="background: #F59E0B; color: white;">🚶</div>
+                        <div class="md-step-num" style="background: #BF4342; color: white;">🚶</div>
                         <div class="text-xs">
                             <span class="text-sm font-medium block mb-0.5">Feeder / Walk to Route</span>
-                            <p style="color: var(--md-on-surface-variant);">Head to nearest pickup point for <b>${esc(bestRouteA.name)}</b> (dashed amber line).</p>
+                            <p style="color: var(--md-on-surface-variant);">Head to nearest pickup point for <b>${esc(bestRouteA.name)}</b> (dashed feeder line).</p>
                         </div>
                     </div>` : ''}
                     <div class="md-step">
@@ -1066,7 +1066,7 @@
 
                 if (minStartDist > 0.3) {
                     const feederRes = await fetchOSRMRoute([userLocation, bestStartWp]);
-                    if (feederRes) L.polyline(feederRes.coordinates, { color: '#F59E0B', weight: 6, dashArray: '6, 8', opacity: 0.9 }).addTo(activeHighlightGroup);
+                    if (feederRes) L.polyline(feederRes.coordinates, { color: '#BF4342', weight: 6, dashArray: '6, 8', opacity: 0.9 }).addTo(activeHighlightGroup);
                 }
 
                 L.polyline(leg1.coordinates, { color: bestRouteA.color, weight: 5, opacity: 0.95 }).addTo(activeHighlightGroup);
