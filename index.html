@@ -85,6 +85,12 @@
             z-index: 1;
             background: #E9E6D3;
         }
+
+        /* Zoom-dependent label visibility */
+        #map.hide-labels .custom-landmark-pin {
+            display: none !important;
+        }
+
         :focus-visible {
             outline: 2px solid var(--md-primary-strong);
             outline-offset: 2px;
@@ -712,16 +718,28 @@
         }
         loadAndDrawAllPreMadeRoutes();
 
-        // Render Landmark Markers with Labels
+        // Render Compact Landmark Markers with Zoom-Dependent Visibility
         Object.entries(LANDMARKS).forEach(([key, lm]) => {
             const landmarkIcon = L.divIcon({
                 className: 'custom-landmark-pin',
-                html: `<div style="position:absolute; left:40px; top:0; transform:translateX(-50%); background:#FAF3DD; color:#2A2D38; font-size:10px; font-weight:500; letter-spacing:0.3px; padding:3px 10px; border-radius:9999px; border:1px solid rgba(105,109,125,0.45); box-shadow:0 2px 6px rgba(42,45,56,0.25); white-space:nowrap;">${lm.name}</div>`,
-                iconSize: [80, 20],
-                iconAnchor: [40, 10]
+                html: `<div style="display:flex; align-items:center; gap:5px; pointer-events:none;"><div style="width:7px; height:7px; background:#3F8E89; border:1.5px solid #FAF3DD; border-radius:50%; box-shadow:0 1px 3px rgba(42,45,56,0.3);"></div><div style="background:rgba(250,243,221,0.95); color:#2A2D38; font-size:9px; font-weight:500; letter-spacing:0.2px; padding:2px 6px; border-radius:6px; border:1px solid rgba(105,109,125,0.3); box-shadow:0 1px 4px rgba(42,45,56,0.2); white-space:nowrap;">${lm.name}</div></div>`,
+                iconSize: [120, 16],
+                iconAnchor: [4, 8]
             });
             L.marker(lm.coords, { icon: landmarkIcon }).addTo(markersGroup);
         });
+
+        // Zoom level check to hide labels when zoomed out
+        function updateZoomVisibility() {
+            const mapEl = document.getElementById('map');
+            if (map.getZoom() < 14) {
+                mapEl.classList.add('hide-labels');
+            } else {
+                mapEl.classList.remove('hide-labels');
+            }
+        }
+        map.on('zoomend', updateZoomVisibility);
+        updateZoomVisibility();
 
         // -------------------------------------------------------------
         // UI & INTERACTION LOGIC
