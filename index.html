@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#FAF3DD">
     <title>CommuteFlow Butuan - Mobile Transit Navigator (MD3)</title>
 
     <!-- Tailwind CSS -->
@@ -34,12 +35,40 @@
     <!-- Google Fonts & Lucide Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        /* ---------------------------------------------------------
+           MATERIAL DESIGN 3 — COLOR ROLES (from the palette)
+           Eggshell #FAF3DD · Tea Green #C8D5B9 · Muted Teal #8FC0A9
+           Tropical Teal #68B0AB · Blue Slate #696D7D
+        --------------------------------------------------------- */
+        :root {
+            --md-surface: #FAF3DD;
+            --md-surface-container: #EEEDD6;
+            --md-surface-container-high: #E4E6CE;
+            --md-on-surface: #2A2D38;
+            --md-on-surface-variant: #555968;
+            --md-outline: #696D7D;
+            --md-outline-variant: rgba(105, 109, 125, 0.28);
+
+            --md-primary: #68B0AB;
+            --md-on-primary: #0B2B2A;
+            --md-primary-strong: #3F8E89;
+            --md-primary-text: #2F6F6B;
+
+            --md-secondary-container: #C8D5B9;
+            --md-on-secondary-container: #27382D;
+            --md-tertiary-container: #8FC0A9;
+            --md-on-tertiary-container: #1F4A3F;
+
+            --md-elev-2: 0 2px 6px rgba(42, 45, 56, 0.18), 0 1px 2px rgba(42, 45, 56, 0.12);
+            --md-elev-3: 0 4px 12px rgba(42, 45, 56, 0.22), 0 1px 4px rgba(42, 45, 56, 0.14);
+        }
+
         * {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Roboto', system-ui, sans-serif;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
         }
@@ -50,40 +79,355 @@
             padding: 0;
             overflow: hidden;
             position: fixed;
-            background-color: #1A1C23;
-            color: #FAF3DD;
+            background-color: var(--md-surface);
+            color: var(--md-on-surface);
         }
         #map {
             height: 100%;
             width: 100%;
             z-index: 1;
+            background: #E9E6D3;
         }
-        ::-webkit-scrollbar {
-            width: 6px;
+        :focus-visible {
+            outline: 2px solid var(--md-primary-strong);
+            outline-offset: 2px;
         }
-        ::-webkit-scrollbar-track {
-            background: rgba(105, 109, 125, 0.2);
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(105, 109, 125, 0.55); border-radius: 9999px; }
+
+        /* ---------------------------------------------------------
+           MD3 COMPONENTS
+        --------------------------------------------------------- */
+
+        /* State layer (hover / pressed) */
+        .md-state { position: relative; overflow: hidden; }
+        .md-state::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: currentColor;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            pointer-events: none;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #696D7D;
+        .md-state:hover::after { opacity: 0.08; }
+        .md-state:active::after { opacity: 0.14; }
+
+        /* Side sheet / bottom sheet */
+        .md-sheet {
+            background: var(--md-surface);
+            color: var(--md-on-surface);
+        }
+        @media (min-width: 768px) {
+            #sidebar {
+                z-index: 20;
+                box-shadow: 4px 0 24px rgba(42, 45, 56, 0.16);
+            }
+        }
+
+        /* Outlined select field with notched label */
+        .md-field { position: relative; }
+        .md-field-label {
+            position: absolute;
+            top: -9px;
+            left: 12px;
+            padding: 0 6px;
+            background: var(--md-surface-container);
+            font-size: 12px;
+            line-height: 16px;
+            font-weight: 500;
+            letter-spacing: 0.4px;
+            color: var(--md-on-surface-variant);
+            z-index: 2;
+            pointer-events: none;
+            transition: color 0.15s ease;
+        }
+        .md-field:focus-within .md-field-label { color: var(--md-primary-text); }
+        .md-field-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: var(--md-primary-text);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .md-field-chevron {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: var(--md-outline);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .md-select {
+            width: 100%;
+            height: 56px;
+            background: transparent;
+            border: 1px solid var(--md-outline);
+            border-radius: 16px;
+            color: var(--md-on-surface);
+            font-size: 14px;
+            font-weight: 400;
+            padding: 0 40px 0 46px;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .md-select:hover { border-color: var(--md-on-surface); }
+        .md-select:focus {
+            border-color: var(--md-primary-strong);
+            box-shadow: 0 0 0 1px var(--md-primary-strong);
+        }
+        .md-select option { background: var(--md-surface); color: var(--md-on-surface); }
+
+        /* Filled button */
+        .md-btn-filled {
+            width: 100%;
+            height: 52px;
+            border: none;
             border-radius: 9999px;
+            background: var(--md-primary);
+            color: var(--md-on-primary);
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: var(--md-elev-2);
+            transition: box-shadow 0.2s ease, background-color 0.2s ease;
         }
+        .md-btn-filled:hover { box-shadow: var(--md-elev-3); }
+
+        /* Filled-tonal icon button */
+        .md-icon-btn-tonal {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            border: none;
+            border-radius: 16px;
+            background: var(--md-secondary-container);
+            color: var(--md-on-secondary-container);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        .md-icon-btn-tonal:active { transform: scale(0.96); }
+
+        .md-icon-btn {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            border: none;
+            border-radius: 9999px;
+            background: var(--md-secondary-container);
+            color: var(--md-on-secondary-container);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* FAB (map reset) */
+        .md-fab {
+            width: 52px;
+            height: 52px;
+            border: none;
+            border-radius: 16px;
+            background: var(--md-surface);
+            color: var(--md-on-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--md-elev-3);
+            cursor: pointer;
+        }
+
+        /* Chips / badges */
+        .md-badge {
+            display: inline-block;
+            max-width: 60%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            line-height: 22px;
+            padding: 0 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.4px;
+            background: rgba(143, 192, 169, 0.35);
+            color: var(--md-on-tertiary-container);
+            border: 1px solid rgba(143, 192, 169, 0.9);
+        }
+        .md-badge--ok {
+            background: rgba(143, 192, 169, 0.35);
+            color: var(--md-on-tertiary-container);
+            border: 1px solid rgba(143, 192, 169, 0.9);
+        }
+        .md-badge--warn {
+            background: rgba(245, 158, 11, 0.2);
+            color: #6B4A00;
+            border: 1px solid rgba(245, 158, 11, 0.7);
+        }
+
+        /* Cards */
+        .md-card {
+            background: var(--md-surface-container);
+            border-radius: 24px;
+        }
+        .md-stats {
+            background: rgba(200, 213, 185, 0.55);
+            border-radius: 24px;
+            color: var(--md-on-secondary-container);
+        }
+        .md-step {
+            background: var(--md-surface-container);
+            border-radius: 20px;
+            padding: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .md-step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* List items (route legend) */
+        .md-list-item {
+            background: var(--md-surface-container);
+            border-radius: 20px;
+            min-height: 64px;
+            padding: 10px 16px 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            cursor: pointer;
+            color: var(--md-on-surface);
+        }
+        .md-route-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--md-on-surface);
+        }
+
+        /* Typography helpers */
+        .md-overline {
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: var(--md-primary-text);
+        }
+        .md-label-small {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: var(--md-on-surface-variant);
+        }
+
+        /* ---------------------------------------------------------
+           MAP MARKERS & LEAFLET RESTYLE
+        --------------------------------------------------------- */
         .user-location-marker {
             width: 22px;
             height: 22px;
-            background-color: #68B0AB;
+            background-color: var(--md-primary);
             border: 3px solid #FAF3DD;
             border-radius: 50%;
-            box-shadow: 0 0 16px rgba(104, 176, 171, 0.9);
+            box-shadow: 0 0 0 0 rgba(104, 176, 171, 0.8), 0 2px 6px rgba(42, 45, 56, 0.35);
             animation: pulse-ring 2s infinite;
         }
         @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(104, 176, 171, 0.8); }
-            70% { box-shadow: 0 0 0 16px rgba(104, 176, 171, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(104, 176, 171, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(104, 176, 171, 0.8), 0 2px 6px rgba(42, 45, 56, 0.35); }
+            70% { box-shadow: 0 0 0 16px rgba(104, 176, 171, 0), 0 2px 6px rgba(42, 45, 56, 0.35); }
+            100% { box-shadow: 0 0 0 0 rgba(104, 176, 171, 0), 0 2px 6px rgba(42, 45, 56, 0.35); }
         }
 
-        /* Material Design 3 Bottom Sheet / Drawer Transformations */
+        .leaflet-popup-content-wrapper {
+            background: var(--md-surface);
+            color: var(--md-on-surface);
+            border-radius: 16px;
+            box-shadow: var(--md-elev-3);
+            font-size: 13px;
+        }
+        .leaflet-popup-tip { background: var(--md-surface); }
+        .leaflet-container a.leaflet-popup-close-button { color: var(--md-outline); }
+
+        .leaflet-tooltip {
+            background: var(--md-surface);
+            color: var(--md-on-surface);
+            border: none;
+            border-radius: 10px;
+            box-shadow: var(--md-elev-2);
+            font-size: 12px;
+            padding: 6px 10px;
+        }
+        .leaflet-tooltip-top:before { border-top-color: var(--md-surface); }
+        .leaflet-tooltip-bottom:before { border-bottom-color: var(--md-surface); }
+        .leaflet-tooltip-left:before { border-left-color: var(--md-surface); }
+        .leaflet-tooltip-right:before { border-right-color: var(--md-surface); }
+
+        .leaflet-control-attribution {
+            background: rgba(250, 243, 221, 0.88) !important;
+            color: var(--md-on-surface-variant) !important;
+            border-radius: 8px 0 0 0;
+            font-size: 10px;
+        }
+        .leaflet-control-attribution a { color: var(--md-primary-text) !important; }
+
+        .leaflet-bar {
+            border: none !important;
+            border-radius: 16px !important;
+            box-shadow: var(--md-elev-3) !important;
+            overflow: hidden;
+        }
+        .leaflet-bar a {
+            background: var(--md-surface) !important;
+            color: var(--md-on-surface) !important;
+            width: 44px !important;
+            height: 44px !important;
+            line-height: 44px !important;
+            font-size: 20px !important;
+            border-bottom: 1px solid var(--md-outline-variant) !important;
+        }
+        .leaflet-bar a:last-child { border-bottom: none !important; }
+        .leaflet-bar a:hover { background: var(--md-surface-container) !important; }
+        .leaflet-control-zoom {
+            margin-right: 16px !important;
+            margin-bottom: 16px !important;
+        }
+
+        /* Material Design 3 Bottom Sheet transformations (mobile) */
         @media (max-width: 767px) {
             #sidebar {
                 position: fixed;
@@ -94,11 +438,11 @@
                 width: 100%;
                 max-height: 85vh;
                 height: auto;
-                border-radius: 2rem 2rem 0 0;
+                border-radius: 28px 28px 0 0;
                 transform: translateY(calc(100% - 76px));
                 transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
                 z-index: 40;
-                box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.4);
+                box-shadow: 0 -4px 20px rgba(42, 45, 56, 0.22);
             }
             #sidebar.drawer-open {
                 transform: translateY(0%);
@@ -106,136 +450,140 @@
             .mobile-drawer-overlay {
                 display: block;
             }
+            /* keep zoom + attribution visible above the collapsed sheet */
+            .leaflet-bottom { bottom: 76px; }
         }
     </style>
 </head>
-<body class="bg-[#1A1C23] text-[#FAF3DD] antialiased flex flex-col md:flex-row h-full w-full relative select-none">
+<body class="antialiased flex flex-col md:flex-row h-full w-full relative select-none">
 
-    <!-- Mobile Drawer Overlay Background -->
-    <div id="drawer-overlay" class="fixed inset-0 bg-[#1A1C23]/70 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
+    <!-- Mobile Drawer Scrim -->
+    <div id="drawer-overlay" class="fixed inset-0 backdrop-blur-[2px] z-30 hidden md:hidden transition-opacity" style="background: rgba(42, 45, 56, 0.40);"></div>
 
     <!-- Sidebar / MD3 Bottom Sheet -->
-    <div id="sidebar" class="bg-[#242730] text-[#FAF3DD] flex flex-col shadow-2xl border-r border-t md:border-t-0 border-[#696D7D]/30 w-full md:w-[440px] md:relative md:translate-y-0 md:h-full md:rounded-none rounded-t-[28px]">
-        
+    <div id="sidebar" class="md-sheet flex flex-col w-full md:w-[440px] md:relative md:translate-y-0 md:h-full rounded-t-[28px] md:rounded-t-none md:rounded-r-[28px] overflow-hidden">
+
         <!-- Mobile Pull Handle & Header -->
-        <div id="drawer-header" class="p-4 md:p-6 border-b border-[#696D7D]/30 flex flex-col shrink-0 cursor-pointer md:cursor-default">
-            
-            <!-- MD3 Grab Bar Indicator -->
-            <div class="w-12 h-1.5 bg-[#696D7D] rounded-full self-center mb-3 md:hidden opacity-80"></div>
+        <div id="drawer-header" class="px-4 pt-3 pb-3 md:px-6 md:pt-6 md:pb-4 flex flex-col shrink-0 cursor-pointer md:cursor-default">
+
+            <!-- MD3 Drag Handle -->
+            <div class="w-8 h-1 rounded-full self-center mb-3 md:hidden" style="background: var(--md-outline); opacity: 0.55;"></div>
 
             <div class="flex justify-between items-center w-full">
                 <div class="flex items-center gap-3.5">
-                    <div class="p-3 bg-gradient-to-tr from-[#68B0AB] to-[#8FC0A9] rounded-2xl shadow-lg shadow-[#68B0AB]/30 flex items-center justify-center">
-                        <i data-lucide="bus" class="w-6 h-6 text-[#1A1C23]"></i>
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm" style="background: var(--md-primary);">
+                        <i data-lucide="bus" class="w-6 h-6" style="color: var(--md-on-primary);"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1 class="font-extrabold text-lg md:text-xl tracking-tight text-[#FAF3DD]">CommuteFlow</h1>
-                            <span class="px-2.5 py-0.5 text-[10px] font-bold bg-[#8FC0A9]/20 text-[#8FC0A9] rounded-full border border-[#8FC0A9]/40">BXU</span>
+                            <h1 class="text-[22px] leading-7 font-medium" style="color: var(--md-on-surface);">CommuteFlow</h1>
+                            <span class="md-badge" style="line-height: 18px; padding: 0 8px; font-size: 10px;">BXU</span>
                         </div>
-                        <p class="text-xs text-[#C8D5B9] font-medium opacity-90">Butuan PUJ / Tricycle Road Navigator</p>
+                        <p class="text-xs" style="color: var(--md-on-surface-variant);">Butuan PUJ / Tricycle Road Navigator</p>
                     </div>
                 </div>
 
                 <!-- Toggle Button (Mobile) -->
-                <button id="toggle-drawer-btn" class="md:hidden p-3 min-w-[44px] min-h-[44px] bg-[#696D7D]/30 hover:bg-[#696D7D]/50 text-[#FAF3DD] rounded-2xl flex items-center justify-center transition border border-[#696D7D]/40">
+                <button id="toggle-drawer-btn" class="md-icon-btn md-state md:hidden">
                     <i id="toggle-icon" data-lucide="chevron-up" class="w-5 h-5 transition-transform duration-300"></i>
                 </button>
             </div>
         </div>
 
+        <div class="h-px shrink-0 mx-4 md:mx-6" style="background: var(--md-outline-variant);"></div>
+
         <!-- Scrollable Controls Container -->
         <div class="p-4 md:p-6 overflow-y-auto space-y-5 flex-1 max-h-[calc(85vh-76px)] md:max-h-none">
-            
+
             <!-- Origin & Destination Selector -->
-            <div class="bg-[#696D7D]/25 p-4 md:p-5 rounded-[24px] border border-[#696D7D]/40 space-y-3.5 shadow-sm backdrop-blur-md">
-                
-                <!-- Origin Dropdown -->
-                <div>
-                    <div class="flex justify-between items-center mb-1.5">
-                        <label class="text-xs font-semibold text-[#C8D5B9] uppercase tracking-wider">Starting Point</label>
-                        <span id="origin-mode-badge" class="text-[10px] font-semibold text-[#8FC0A9] bg-[#8FC0A9]/15 px-2.5 py-0.5 rounded-full border border-[#8FC0A9]/30">Pinned Location</span>
+            <div class="md-card p-4 md:p-5 space-y-4">
+
+                <div class="flex justify-between items-center gap-2">
+                    <span class="md-overline">Plan your trip</span>
+                    <span id="origin-mode-badge" class="md-badge">Pinned Location</span>
+                </div>
+
+                <!-- Origin -->
+                <div class="flex gap-2 items-center pt-1">
+                    <div class="md-field flex-1">
+                        <label class="md-field-label" for="origin-select">Starting Point</label>
+                        <i data-lucide="map-pin" class="md-field-icon"></i>
+                        <select id="origin-select" class="md-select">
+                            <option value="gps">My GPS / Clicked Map Location</option>
+                            <option value="guingona">Guingona Park (City Center)</option>
+                            <option value="langihan">Langihan Terminal</option>
+                            <option value="ampayon">CSU Ampayon Campus</option>
+                            <option value="gaisano">Gaisano Mall Butuan</option>
+                            <option value="robinsons">Robinsons Place Butuan</option>
+                            <option value="cityhall">Butuan City Hall</option>
+                            <option value="libertad">Libertad Barangay Hall</option>
+                            <option value="baan">Baan Km 3 Crossing</option>
+                            <option value="bancasi">Bancasi Airport</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="md-field-chevron"></i>
                     </div>
-                    <div class="flex gap-2">
-                        <div class="relative flex-1">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-[#8FC0A9] absolute left-3.5 top-3.5"></i>
-                            <select id="origin-select" class="w-full bg-[#1A1C23] border border-[#696D7D]/50 text-[#FAF3DD] text-xs md:text-sm rounded-2xl pl-10 pr-3 h-12 focus:outline-none focus:ring-2 focus:ring-[#68B0AB] transition appearance-none cursor-pointer">
-                                <option value="gps">My GPS / Clicked Map Location</option>
-                                <option value="guingona">Guingona Park (City Center)</option>
-                                <option value="langihan">Langihan Terminal</option>
-                                <option value="ampayon">CSU Ampayon Campus</option>
-                                <option value="gaisano">Gaisano Mall Butuan</option>
-                                <option value="robinsons">Robinsons Place Butuan</option>
-                                <option value="cityhall">Butuan City Hall</option>
-                                <option value="libertad">Libertad Barangay Hall</option>
-                                <option value="baan">Baan Km 3 Crossing</option>
-                                <option value="bancasi">Bancasi Airport</option>
-                            </select>
-                        </div>
-                        <button id="locate-btn" title="Detect Current GPS Location" class="w-12 h-12 min-w-[48px] min-h-[48px] bg-[#696D7D]/30 hover:bg-[#696D7D]/50 text-[#8FC0A9] rounded-2xl transition flex items-center justify-center border border-[#696D7D]/40 shadow-sm active:scale-95">
-                            <i data-lucide="crosshair" class="w-5 h-5"></i>
-                        </button>
-                    </div>
+                    <button id="locate-btn" title="Detect Current GPS Location" class="md-icon-btn-tonal md-state">
+                        <i data-lucide="crosshair" class="w-5 h-5"></i>
+                    </button>
                 </div>
 
                 <!-- Arrow Divider -->
-                <div class="flex justify-center -my-1">
-                    <div class="bg-[#242730] p-2 rounded-full text-[#C8D5B9] border border-[#696D7D]/40 shadow-sm">
-                        <i data-lucide="arrow-down-up" class="w-3.5 h-3.5"></i>
+                <div class="flex justify-center -my-1.5">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background: var(--md-secondary-container); color: var(--md-on-secondary-container);">
+                        <i data-lucide="arrow-down-up" class="w-4 h-4"></i>
                     </div>
                 </div>
 
-                <!-- Destination Dropdown -->
-                <div>
-                    <label class="text-xs font-semibold text-[#C8D5B9] uppercase tracking-wider block mb-1.5">Target Destination</label>
-                    <div class="relative">
-                        <i data-lucide="navigation" class="w-4 h-4 text-[#68B0AB] absolute left-3.5 top-3.5"></i>
-                        <select id="destination-select" class="w-full bg-[#1A1C23] border border-[#696D7D]/50 text-[#FAF3DD] text-xs md:text-sm rounded-2xl pl-10 pr-3 h-12 focus:outline-none focus:ring-2 focus:ring-[#68B0AB] transition appearance-none cursor-pointer">
-                            <option value="" disabled selected>Select Destination Landmark...</option>
-                            <option value="gaisano">Gaisano Mall Butuan</option>
-                            <option value="robinsons">Robinsons Place Butuan</option>
-                            <option value="ampayon">CSU Ampayon Campus</option>
-                            <option value="langihan">Langihan Terminal</option>
-                            <option value="cityhall">Butuan City Hall</option>
-                            <option value="guingona">Guingona Park</option>
-                            <option value="libertad">Libertad Barangay Hall</option>
-                            <option value="baan">Baan Km 3</option>
-                            <option value="bancasi">Bancasi Airport</option>
-                        </select>
-                    </div>
+                <!-- Destination -->
+                <div class="md-field">
+                    <label class="md-field-label" for="destination-select">Target Destination</label>
+                    <i data-lucide="navigation" class="md-field-icon"></i>
+                    <select id="destination-select" class="md-select">
+                        <option value="" disabled selected>Select Destination Landmark...</option>
+                        <option value="gaisano">Gaisano Mall Butuan</option>
+                        <option value="robinsons">Robinsons Place Butuan</option>
+                        <option value="ampayon">CSU Ampayon Campus</option>
+                        <option value="langihan">Langihan Terminal</option>
+                        <option value="cityhall">Butuan City Hall</option>
+                        <option value="guingona">Guingona Park</option>
+                        <option value="libertad">Libertad Barangay Hall</option>
+                        <option value="baan">Baan Km 3</option>
+                        <option value="bancasi">Bancasi Airport</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="md-field-chevron"></i>
                 </div>
 
-                <button id="find-route-btn" class="w-full mt-2 h-12 min-h-[48px] bg-[#68B0AB] hover:bg-[#599E9B] active:scale-[0.98] text-[#1A1C23] font-extrabold rounded-2xl shadow-lg shadow-[#68B0AB]/25 transition flex items-center justify-center gap-2 text-xs md:text-sm uppercase tracking-wide">
+                <button id="find-route-btn" class="md-btn-filled md-state">
                     <i data-lucide="route" class="w-5 h-5"></i>
                     Snap Route & Get Ride Directions
                 </button>
             </div>
 
             <!-- Loading Indicator -->
-            <div id="loading-indicator" class="hidden p-4 bg-[#68B0AB]/15 border border-[#68B0AB]/30 rounded-2xl flex items-center gap-3">
-                <div class="w-5 h-5 border-2 border-[#68B0AB] border-t-transparent rounded-full animate-spin"></div>
-                <span class="text-xs text-[#FAF3DD] font-medium">Fetching street geometry from OSRM...</span>
+            <div id="loading-indicator" class="hidden p-4 rounded-2xl flex items-center gap-3" style="background: rgba(143, 192, 169, 0.3);">
+                <div class="w-5 h-5 rounded-full animate-spin" style="border: 2px solid var(--md-primary-strong); border-top-color: transparent;"></div>
+                <span class="text-xs font-medium" style="color: var(--md-on-surface);">Fetching street geometry from OSRM...</span>
             </div>
 
             <!-- Route Result & Step-by-Step Instructions -->
             <div id="route-output" class="hidden space-y-4">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-[#8FC0A9] flex items-center gap-1.5">
+                    <h2 class="text-sm font-medium tracking-wide flex items-center gap-1.5" style="color: var(--md-primary-text);">
                         <i data-lucide="sparkles" class="w-4 h-4"></i>
                         Commute Recommendations
                     </h2>
-                    <span id="transfers-badge" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border">Direct Ride</span>
+                    <span id="transfers-badge" class="md-badge md-badge--ok">Direct Ride</span>
                 </div>
 
                 <!-- Distance & Duration Summary Card -->
-                <div class="grid grid-cols-2 gap-2.5 bg-[#696D7D]/20 p-3.5 rounded-2xl border border-[#696D7D]/30 text-center">
-                    <div>
-                        <span class="text-[10px] text-[#C8D5B9] uppercase block font-semibold">Road Distance</span>
-                        <span id="dist-val" class="text-sm md:text-base font-extrabold text-[#FAF3DD]">-- km</span>
+                <div class="md-stats grid grid-cols-2 text-center">
+                    <div class="py-4">
+                        <span class="md-label-small block mb-0.5" style="color: var(--md-on-secondary-container); opacity: 0.8;">Road Distance</span>
+                        <span id="dist-val" class="text-[22px] leading-7 font-medium">-- km</span>
                     </div>
-                    <div>
-                        <span class="text-[10px] text-[#C8D5B9] uppercase block font-semibold">Est. Trip Time</span>
-                        <span id="time-val" class="text-sm md:text-base font-extrabold text-[#FAF3DD]">-- mins</span>
+                    <div class="py-4" style="border-left: 1px solid rgba(39, 56, 45, 0.18);">
+                        <span class="md-label-small block mb-0.5" style="color: var(--md-on-secondary-container); opacity: 0.8;">Est. Trip Time</span>
+                        <span id="time-val" class="text-[22px] leading-7 font-medium">-- mins</span>
                     </div>
                 </div>
 
@@ -246,72 +594,72 @@
             </div>
 
             <!-- Butuan Commute Routes Legend -->
-            <div class="space-y-3 pt-2">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#C8D5B9]">Road-Snapped City Lines</h3>
-                    <span class="text-[11px] text-[#8FC0A9]">Tap to preview</span>
+            <div class="space-y-3 pt-1">
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="text-sm font-medium tracking-wide" style="color: var(--md-on-surface);">Road-Snapped City Lines</h3>
+                    <span class="text-[11px] font-medium" style="color: var(--md-primary-text);">Tap to preview</span>
                 </div>
 
                 <div class="grid grid-cols-1 gap-2.5">
-                    
+
                     <!-- Route 1 -->
-                    <div class="p-3.5 bg-[#696D7D]/20 min-h-[52px] rounded-2xl border border-[#696D7D]/30 hover:border-[#68B0AB]/50 active:bg-[#696D7D]/30 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R1')">
-                        <div class="flex items-center gap-3">
-                            <span class="w-3.5 h-3.5 rounded-full bg-r1 shadow-sm shrink-0"></span>
-                            <div>
-                                <h4 class="text-xs md:text-sm font-bold text-[#FAF3DD] group-hover:text-[#8FC0A9]">Route 1 (R1)</h4>
-                                <p class="text-[11px] text-[#C8D5B9]">Langihan - City Center - Bancasi Loop</p>
+                    <div class="md-list-item md-state" onclick="previewRoute('R1')">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <span class="md-route-avatar bg-r1"><i data-lucide="bus" class="w-5 h-5"></i></span>
+                            <div class="min-w-0">
+                                <h4 class="text-sm font-medium">Route 1 (R1)</h4>
+                                <p class="text-xs" style="color: var(--md-on-surface-variant);">Langihan - City Center - Bancasi Loop</p>
                             </div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#C8D5B9] group-hover:text-[#FAF3DD]"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
                     </div>
 
                     <!-- Route 2 -->
-                    <div class="p-3.5 bg-[#696D7D]/20 min-h-[52px] rounded-2xl border border-[#696D7D]/30 hover:border-[#68B0AB]/50 active:bg-[#696D7D]/30 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R2')">
-                        <div class="flex items-center gap-3">
-                            <span class="w-3.5 h-3.5 rounded-full bg-r2 shadow-sm shrink-0"></span>
-                            <div>
-                                <h4 class="text-xs md:text-sm font-bold text-[#FAF3DD] group-hover:text-[#8FC0A9]">Route 2 (R2)</h4>
-                                <p class="text-[11px] text-[#C8D5B9]">JC Aquino - Montilla - Ampayon Line</p>
+                    <div class="md-list-item md-state" onclick="previewRoute('R2')">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <span class="md-route-avatar bg-r2"><i data-lucide="bus" class="w-5 h-5"></i></span>
+                            <div class="min-w-0">
+                                <h4 class="text-sm font-medium">Route 2 (R2)</h4>
+                                <p class="text-xs" style="color: var(--md-on-surface-variant);">JC Aquino - Montilla - Ampayon Line</p>
                             </div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#C8D5B9] group-hover:text-[#FAF3DD]"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
                     </div>
 
                     <!-- Route 3 -->
-                    <div class="p-3.5 bg-[#696D7D]/20 min-h-[52px] rounded-2xl border border-[#696D7D]/30 hover:border-[#68B0AB]/50 active:bg-[#696D7D]/30 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R3')">
-                        <div class="flex items-center gap-3">
-                            <span class="w-3.5 h-3.5 rounded-full bg-r3 shadow-sm shrink-0"></span>
-                            <div>
-                                <h4 class="text-xs md:text-sm font-bold text-[#FAF3DD] group-hover:text-[#8FC0A9]">Route 3 (R3)</h4>
-                                <p class="text-[11px] text-[#C8D5B9]">Villa Kananga - Libertad Highway</p>
+                    <div class="md-list-item md-state" onclick="previewRoute('R3')">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <span class="md-route-avatar bg-r3"><i data-lucide="bus" class="w-5 h-5"></i></span>
+                            <div class="min-w-0">
+                                <h4 class="text-sm font-medium">Route 3 (R3)</h4>
+                                <p class="text-xs" style="color: var(--md-on-surface-variant);">Villa Kananga - Libertad Highway</p>
                             </div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#C8D5B9] group-hover:text-[#FAF3DD]"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
                     </div>
 
                     <!-- Route 4 -->
-                    <div class="p-3.5 bg-[#696D7D]/20 min-h-[52px] rounded-2xl border border-[#696D7D]/30 hover:border-[#68B0AB]/50 active:bg-[#696D7D]/30 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R4')">
-                        <div class="flex items-center gap-3">
-                            <span class="w-3.5 h-3.5 rounded-full bg-r4 shadow-sm shrink-0"></span>
-                            <div>
-                                <h4 class="text-xs md:text-sm font-bold text-[#FAF3DD] group-hover:text-[#8FC0A9]">Route 4 (R4)</h4>
-                                <p class="text-[11px] text-[#C8D5B9]">Baan - Km 3 East Bypass Line</p>
+                    <div class="md-list-item md-state" onclick="previewRoute('R4')">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <span class="md-route-avatar bg-r4"><i data-lucide="bus" class="w-5 h-5"></i></span>
+                            <div class="min-w-0">
+                                <h4 class="text-sm font-medium">Route 4 (R4)</h4>
+                                <p class="text-xs" style="color: var(--md-on-surface-variant);">Baan - Km 3 East Bypass Line</p>
                             </div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#C8D5B9] group-hover:text-[#FAF3DD]"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
                     </div>
 
                     <!-- Route 10 -->
-                    <div class="p-3.5 bg-[#696D7D]/20 min-h-[52px] rounded-2xl border border-[#696D7D]/30 hover:border-[#68B0AB]/50 active:bg-[#696D7D]/30 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R10')">
-                        <div class="flex items-center gap-3">
-                            <span class="w-3.5 h-3.5 rounded-full bg-r10 shadow-sm shrink-0"></span>
-                            <div>
-                                <h4 class="text-xs md:text-sm font-bold text-[#FAF3DD] group-hover:text-[#8FC0A9]">Route 10 (R10)</h4>
-                                <p class="text-[11px] text-[#C8D5B9]">Inner City Tricycle / Feeder Connector</p>
+                    <div class="md-list-item md-state" onclick="previewRoute('R10')">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <span class="md-route-avatar bg-r10"><i data-lucide="car" class="w-5 h-5"></i></span>
+                            <div class="min-w-0">
+                                <h4 class="text-sm font-medium">Route 10 (R10)</h4>
+                                <p class="text-xs" style="color: var(--md-on-surface-variant);">Inner City Tricycle / Feeder Connector</p>
                             </div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#C8D5B9] group-hover:text-[#FAF3DD]"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
                     </div>
 
                 </div>
@@ -320,7 +668,7 @@
         </div>
 
         <!-- Sidebar Footer -->
-        <div class="p-3.5 bg-[#1A1C23] border-t border-[#696D7D]/30 text-center text-[11px] text-[#C8D5B9] shrink-0 font-medium">
+        <div class="px-4 py-3 text-center text-[11px] shrink-0 font-medium" style="background: var(--md-surface-container); color: var(--md-on-surface-variant); border-top: 1px solid var(--md-outline-variant);">
             OpenStreetMap Standard Tiles + OSRM Engine
         </div>
     </div>
@@ -329,7 +677,7 @@
     <div class="flex-1 relative h-full w-full">
         <!-- Floating Reset Map Camera Button -->
         <div class="absolute top-4 right-4 z-[10]">
-            <button id="reset-map-btn" class="bg-[#242730]/90 hover:bg-[#242730] text-[#FAF3DD] p-3 min-w-[44px] min-h-[44px] rounded-2xl shadow-xl border border-[#696D7D]/40 backdrop-blur-md transition flex items-center justify-center active:scale-95" title="Reset View">
+            <button id="reset-map-btn" class="md-fab md-state" title="Reset View">
                 <i data-lucide="maximize" class="w-5 h-5"></i>
             </button>
         </div>
@@ -491,9 +839,9 @@
                 const pathCoords = geometry ? geometry.coordinates : route.waypoints;
 
                 L.polyline(pathCoords, {
-                    color: '#1A1C23',
-                    weight: 6,
-                    opacity: 0.5,
+                    color: '#FAF3DD',
+                    weight: 7,
+                    opacity: 0.85,
                     lineCap: 'round',
                     lineJoin: 'round'
                 }).addTo(staticRoutesGroup);
@@ -501,7 +849,7 @@
                 const line = L.polyline(pathCoords, {
                     color: route.color,
                     weight: 3.5,
-                    opacity: 0.85
+                    opacity: 0.9
                 }).addTo(staticRoutesGroup);
 
                 line.bindTooltip(`<b>${route.name}</b>`, { sticky: true });
@@ -514,7 +862,7 @@
         Object.entries(LANDMARKS).forEach(([key, lm]) => {
             const landmarkIcon = L.divIcon({
                 className: 'custom-landmark-pin',
-                html: `<div class="bg-[#242730] text-[#FAF3DD] text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-[#696D7D]/50 shadow-lg whitespace-nowrap">${lm.name}</div>`,
+                html: `<div style="position:absolute; left:40px; top:0; transform:translateX(-50%); background:#FAF3DD; color:#2A2D38; font-size:10px; font-weight:500; letter-spacing:0.3px; padding:3px 10px; border-radius:9999px; border:1px solid rgba(105,109,125,0.45); box-shadow:0 2px 6px rgba(42,45,56,0.25); white-space:nowrap;">${lm.name}</div>`,
                 iconSize: [80, 20],
                 iconAnchor: [40, 10]
             });
@@ -645,9 +993,9 @@
             if (endMarker) map.removeLayer(endMarker);
             const destIcon = L.divIcon({
                 className: 'dest-pin-wrapper',
-                html: `<div class="bg-[#68B0AB] text-[#1A1C23] p-2 rounded-full shadow-lg border-2 border-[#FAF3DD]"><i data-lucide="map-pin" class="w-4 h-4"></i></div>`,
-                iconSize: [32, 32],
-                iconAnchor: [16, 16]
+                html: `<div style="background:#68B0AB; color:#0B2B2A; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:9999px; border:3px solid #FAF3DD; box-shadow:0 3px 10px rgba(42,45,56,0.35);"><i data-lucide="map-pin" class="w-4 h-4"></i></div>`,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
             });
             endMarker = L.marker(destCoords, { icon: destIcon }).addTo(map);
             endMarker.bindPopup(`<b>Destination:</b> ${destLandmark.name}`).openPopup();
@@ -671,15 +1019,19 @@
 
             if (snappedResult) {
                 L.polyline(snappedResult.coordinates, {
-                    color: '#FAF3DD',
-                    weight: 8,
-                    opacity: 0.85
+                    color: '#2A2D38',
+                    weight: 9,
+                    opacity: 0.85,
+                    lineCap: 'round',
+                    lineJoin: 'round'
                 }).addTo(activeHighlightGroup);
 
                 const activePolyline = L.polyline(snappedResult.coordinates, {
                     color: matchedRoute.color,
                     weight: 5,
-                    opacity: 0.95
+                    opacity: 0.95,
+                    lineCap: 'round',
+                    lineJoin: 'round'
                 }).addTo(activeHighlightGroup);
 
                 map.fitBounds(activePolyline.getBounds(), { padding: [50, 50] });
@@ -693,31 +1045,31 @@
 
             document.getElementById('transfers-badge').innerText = isDirect ? "Direct PUJ Line" : "Transfer / Tricycle";
             document.getElementById('transfers-badge').className = isDirect 
-                ? "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#8FC0A9]/20 text-[#8FC0A9] border border-[#8FC0A9]/40"
-                : "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40";
+                ? "md-badge md-badge--ok"
+                : "md-badge md-badge--warn";
 
             stepsContainer.innerHTML = `
-                <div class="p-3.5 bg-[#696D7D]/20 rounded-2xl border border-[#696D7D]/30 flex items-start gap-3">
-                    <div class="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 bg-[#68B0AB] text-[#1A1C23]">1</div>
-                    <div class="text-xs text-[#FAF3DD]">
-                        <span class="font-bold text-[#FAF3DD] block mb-0.5">Walk to nearest pickup node</span>
-                        <p class="text-[#C8D5B9]">Walk to nearest loading area along the street towards <b>${matchedRoute.shortName}</b> line.</p>
+                <div class="md-step">
+                    <div class="md-step-num" style="background: var(--md-primary); color: var(--md-on-primary);">1</div>
+                    <div class="text-xs" style="color: var(--md-on-surface);">
+                        <span class="text-sm font-medium block mb-0.5">Walk to nearest pickup node</span>
+                        <p style="color: var(--md-on-surface-variant);">Walk to nearest loading area along the street towards <b>${matchedRoute.shortName}</b> line.</p>
                     </div>
                 </div>
 
-                <div class="p-3.5 bg-[#696D7D]/20 rounded-2xl border border-[#696D7D]/30 flex items-start gap-3">
-                    <div class="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 text-[#1A1C23]" style="background-color: ${matchedRoute.color}">2</div>
-                    <div class="text-xs text-[#FAF3DD]">
-                        <span class="font-bold text-[#FAF3DD] block mb-0.5">Board ${matchedRoute.vehicle}</span>
-                        <p class="text-[#C8D5B9]">Ride along road path towards <b>${destLandmark.name}</b>.</p>
+                <div class="md-step">
+                    <div class="md-step-num" style="background-color: ${matchedRoute.color}; color: var(--md-on-surface);">2</div>
+                    <div class="text-xs" style="color: var(--md-on-surface);">
+                        <span class="text-sm font-medium block mb-0.5">Board ${matchedRoute.vehicle}</span>
+                        <p style="color: var(--md-on-surface-variant);">Ride along road path towards <b>${destLandmark.name}</b>.</p>
                     </div>
                 </div>
 
-                <div class="p-3.5 bg-[#696D7D]/20 rounded-2xl border border-[#696D7D]/30 flex items-start gap-3">
-                    <div class="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 bg-rose-600 text-[#FAF3DD]">3</div>
-                    <div class="text-xs text-[#FAF3DD]">
-                        <span class="font-bold text-[#FAF3DD] block mb-0.5">Alight at Destination</span>
-                        <p class="text-[#C8D5B9]">Disembark at <b>${destLandmark.name}</b> stop point.</p>
+                <div class="md-step">
+                    <div class="md-step-num" style="background: var(--md-outline); color: var(--md-surface);">3</div>
+                    <div class="text-xs" style="color: var(--md-on-surface);">
+                        <span class="text-sm font-medium block mb-0.5">Alight at Destination</span>
+                        <p style="color: var(--md-on-surface-variant);">Disembark at <b>${destLandmark.name}</b> stop point.</p>
                     </div>
                 </div>
             `;
