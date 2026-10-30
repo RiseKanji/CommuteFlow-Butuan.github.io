@@ -191,6 +191,99 @@
         }
         .md-select option { background: var(--md-surface); color: var(--md-on-surface); }
 
+        /* Search input + suggestion menu */
+        .md-input {
+            width: 100%;
+            height: 56px;
+            background: transparent;
+            border: 1px solid var(--md-outline);
+            border-radius: 16px;
+            color: var(--md-on-surface);
+            font-size: 16px;
+            padding: 0 46px 0 46px;
+            outline: none;
+            text-overflow: ellipsis;
+            -webkit-user-select: text;
+            user-select: text;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .md-input::placeholder { color: var(--md-on-surface-variant); opacity: 0.75; }
+        .md-input:hover { border-color: var(--md-on-surface); }
+        .md-input:focus {
+            border-color: var(--md-primary-strong);
+            box-shadow: 0 0 0 1px var(--md-primary-strong);
+        }
+        .md-field-clear {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: transparent;
+            border-radius: 9999px;
+            color: var(--md-on-surface-variant);
+            cursor: pointer;
+            z-index: 3;
+        }
+        .md-field-clear:hover { background: rgba(105, 109, 125, 0.14); }
+        .md-menu {
+            background: var(--md-surface);
+            border: 1px solid var(--md-outline-variant);
+            border-radius: 16px;
+            box-shadow: var(--md-elev-2);
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 6px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .md-menu-header {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: var(--md-primary-text);
+            padding: 8px 12px 4px;
+        }
+        .md-menu-note {
+            padding: 10px 12px;
+            font-size: 12px;
+            color: var(--md-on-surface-variant);
+        }
+        .md-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            min-height: 52px;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 12px;
+            color: var(--md-on-surface);
+            text-align: left;
+            cursor: pointer;
+        }
+        .md-menu-ico {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            background: var(--md-secondary-container);
+            color: var(--md-on-secondary-container);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .md-menu-title, .md-menu-sub {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .md-menu-title { font-size: 14px; font-weight: 500; line-height: 20px; }
+        .md-menu-sub { font-size: 12px; line-height: 16px; color: var(--md-on-surface-variant); }
+
         /* Filled button */
         .md-btn-filled {
             width: 100%;
@@ -506,26 +599,18 @@
                 <!-- Origin -->
                 <div class="flex gap-2 items-center pt-1">
                     <div class="md-field flex-1">
-                        <label class="md-field-label" for="origin-select">Starting Point</label>
+                        <label class="md-field-label" for="origin-input">Starting Point</label>
                         <i data-lucide="map-pin" class="md-field-icon"></i>
-                        <select id="origin-select" class="md-select">
-                            <option value="gps">My GPS / Clicked Map Location</option>
-                            <option value="guingona">Guingona Park (City Center)</option>
-                            <option value="langihan">Langihan Terminal</option>
-                            <option value="ampayon">CSU Ampayon Campus</option>
-                            <option value="gaisano">Gaisano Mall Butuan</option>
-                            <option value="robinsons">Robinsons Place Butuan</option>
-                            <option value="cityhall">Butuan City Hall</option>
-                            <option value="libertad">Libertad Barangay Hall</option>
-                            <option value="baan">Baan Km 3 Crossing</option>
-                            <option value="bancasi">Bancasi Airport</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="md-field-chevron"></i>
+                        <input type="hidden" id="origin-select" value="gps">
+                        <input id="origin-input" type="text" class="md-input" placeholder="Search a place or tap the map" autocomplete="off" autocapitalize="off" spellcheck="false">
+                        <button id="origin-clear" type="button" class="md-field-clear flex items-center justify-center hidden" aria-label="Clear starting point"><i data-lucide="x" class="w-4 h-4"></i></button>
                     </div>
                     <button id="locate-btn" title="Detect Current GPS Location" class="md-icon-btn-tonal md-state">
                         <i data-lucide="crosshair" class="w-5 h-5"></i>
                     </button>
                 </div>
+
+                <div id="origin-menu" class="md-menu hidden"></div>
 
                 <!-- Arrow Divider -->
                 <div class="flex justify-center -my-1.5">
@@ -536,22 +621,13 @@
 
                 <!-- Destination -->
                 <div class="md-field">
-                    <label class="md-field-label" for="destination-select">Target Destination</label>
+                    <label class="md-field-label" for="destination-input">Target Destination</label>
                     <i data-lucide="navigation" class="md-field-icon"></i>
-                    <select id="destination-select" class="md-select">
-                        <option value="" disabled selected>Select Destination Landmark...</option>
-                        <option value="gaisano">Gaisano Mall Butuan</option>
-                        <option value="robinsons">Robinsons Place Butuan</option>
-                        <option value="ampayon">CSU Ampayon Campus</option>
-                        <option value="langihan">Langihan Terminal</option>
-                        <option value="cityhall">Butuan City Hall</option>
-                        <option value="guingona">Guingona Park</option>
-                        <option value="libertad">Libertad Barangay Hall</option>
-                        <option value="baan">Baan Km 3</option>
-                        <option value="bancasi">Bancasi Airport</option>
-                    </select>
-                    <i data-lucide="chevron-down" class="md-field-chevron"></i>
+                    <input id="destination-input" type="text" class="md-input" placeholder="Search for a destination" autocomplete="off" autocapitalize="off" spellcheck="false">
+                    <button id="destination-clear" type="button" class="md-field-clear flex items-center justify-center hidden" aria-label="Clear destination"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>
+
+                <div id="destination-menu" class="md-menu hidden"></div>
 
                 <button id="find-route-btn" class="md-btn-filled md-state">
                     <i data-lucide="route" class="w-5 h-5"></i>
@@ -669,7 +745,7 @@
 
         <!-- Sidebar Footer -->
         <div class="px-4 py-3 text-center text-[11px] shrink-0 font-medium" style="background: var(--md-surface-container); color: var(--md-on-surface-variant); border-top: 1px solid var(--md-outline-variant);">
-            OpenStreetMap Standard Tiles + OSRM Engine
+            OpenStreetMap Tiles + Nominatim Search + OSRM Engine
         </div>
     </div>
 
@@ -919,7 +995,7 @@
             });
 
             startMarker = L.marker(userLocation, { icon: userIcon }).addTo(map);
-            startMarker.bindPopup(`<b>Start Point:</b> ${label}`).openPopup();
+            startMarker.bindPopup(`<b>Start Point:</b> ${esc(label)}`).openPopup();
             document.getElementById('origin-mode-badge').innerText = label;
         }
 
@@ -933,6 +1009,10 @@
                     (pos) => {
                         const { latitude, longitude } = pos.coords;
                         setUserLocation(latitude, longitude, "My GPS Location");
+                        // back to "tap the map" mode
+                        document.getElementById('origin-select').value = 'gps';
+                        document.getElementById('origin-input').value = '';
+                        document.getElementById('origin-clear').classList.add('hidden');
                         map.flyTo([latitude, longitude], 15);
                     },
                     () => alert("GPS detection failed or permission denied. Tap anywhere on the map to set your location.")
@@ -946,13 +1026,231 @@
             }
         });
 
-        document.getElementById('origin-select').addEventListener('change', (e) => {
-            const val = e.target.value;
-            if (val !== 'gps' && LANDMARKS[val]) {
-                const lm = LANDMARKS[val];
-                setUserLocation(lm.coords[0], lm.coords[1], lm.name);
-                map.panTo(lm.coords);
+        // -------------------------------------------------------------
+        // 4b. PLACE SEARCH (OpenStreetMap Nominatim)
+        // -------------------------------------------------------------
+        // Results are limited to the Butuan area: left,top,right,bottom
+        const SEARCH_VIEWBOX = '125.40,9.10,125.70,8.80';
+        let selectedDest = null;
+
+        function esc(str) {
+            return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function createPlaceSearch({ input, menu, clearBtn, leadingItems = [], onPick, onClear, onType }) {
+            const wrap = input.closest('.md-field');
+            let debounceTimer = null;
+            let controller = null;
+            let remote = { state: 'idle', items: [] };
+
+            function close() {
+                clearTimeout(debounceTimer);
+                if (controller) controller.abort();
+                remote = { state: 'idle', items: [] };
+                menu.classList.add('hidden');
+                menu.innerHTML = '';
             }
+
+            function addHeader(text) {
+                const h = document.createElement('div');
+                h.className = 'md-menu-header';
+                h.textContent = text;
+                menu.appendChild(h);
+            }
+
+            function addNote(text) {
+                const n = document.createElement('div');
+                n.className = 'md-menu-note';
+                n.textContent = text;
+                menu.appendChild(n);
+            }
+
+            function addItem({ icon, title, sub, pick }) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'md-menu-item md-state';
+
+                const ico = document.createElement('span');
+                ico.className = 'md-menu-ico';
+                const i = document.createElement('i');
+                i.setAttribute('data-lucide', icon);
+                i.className = 'w-4 h-4';
+                ico.appendChild(i);
+
+                const txt = document.createElement('span');
+                txt.className = 'min-w-0 flex-1';
+                const t = document.createElement('span');
+                t.className = 'md-menu-title';
+                t.textContent = title;
+                txt.appendChild(t);
+                if (sub) {
+                    const s = document.createElement('span');
+                    s.className = 'md-menu-sub';
+                    s.textContent = sub;
+                    txt.appendChild(s);
+                }
+
+                btn.append(ico, txt);
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    pick();
+                    close();
+                });
+                menu.appendChild(btn);
+            }
+
+            function pickPlace(name, coords) {
+                input.value = name;
+                clearBtn.classList.remove('hidden');
+                onPick({ name, coords });
+            }
+
+            function render() {
+                const q = input.value.trim();
+                const ql = q.toLowerCase();
+                menu.innerHTML = '';
+
+                if (!q) {
+                    leadingItems.forEach(it => addItem({
+                        icon: it.icon, title: it.title, sub: it.sub,
+                        pick: () => {
+                            input.value = '';
+                            clearBtn.classList.add('hidden');
+                            it.pick();
+                        }
+                    }));
+                }
+
+                const local = Object.values(LANDMARKS).filter(lm => !ql || lm.name.toLowerCase().includes(ql));
+                if (local.length) {
+                    addHeader('Landmarks');
+                    local.forEach(lm => addItem({
+                        icon: 'landmark', title: lm.name, sub: 'Butuan City landmark',
+                        pick: () => pickPlace(lm.name, lm.coords)
+                    }));
+                }
+
+                if (q.length > 0 && q.length < 3) {
+                    addNote('Keep typing to search OpenStreetMap…');
+                } else if (q.length >= 3 && remote.state !== 'idle') {
+                    addHeader('OpenStreetMap results');
+                    if (remote.state === 'loading') {
+                        addNote('Searching…');
+                    } else if (remote.state === 'error') {
+                        addNote("Couldn't reach OpenStreetMap search. Please try again.");
+                    } else if (remote.items.length === 0) {
+                        addNote('No places found around Butuan.');
+                    } else {
+                        remote.items.forEach(r => addItem({
+                            icon: 'map-pin', title: r.name, sub: r.full,
+                            pick: () => pickPlace(r.name, r.coords)
+                        }));
+                    }
+                }
+
+                menu.classList.remove('hidden');
+                lucide.createIcons();
+                menu.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+
+            async function search(q) {
+                controller = new AbortController();
+                const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&countrycodes=ph&viewbox=${SEARCH_VIEWBOX}&bounded=1&q=${encodeURIComponent(q)}`;
+                try {
+                    const res = await fetch(url, { signal: controller.signal, headers: { 'Accept-Language': 'en' } });
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const data = await res.json();
+                    remote = {
+                        state: 'done',
+                        items: data.map(r => ({
+                            name: (r.name || r.display_name.split(',')[0]).trim(),
+                            full: r.display_name,
+                            coords: [parseFloat(r.lat), parseFloat(r.lon)]
+                        }))
+                    };
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    console.warn('Nominatim search error:', err);
+                    remote = { state: 'error', items: [] };
+                }
+                if (!menu.classList.contains('hidden') && input.value.trim() === q) render();
+            }
+
+            input.addEventListener('input', () => {
+                const q = input.value.trim();
+                clearBtn.classList.toggle('hidden', !input.value);
+                if (onType) onType(input.value);
+                clearTimeout(debounceTimer);
+                if (controller) controller.abort();
+                if (q.length >= 3) {
+                    remote = { state: 'loading', items: [] };
+                    debounceTimer = setTimeout(() => search(q), 700); // be kind to the free Nominatim service
+                } else {
+                    remote = { state: 'idle', items: [] };
+                }
+                render();
+            });
+
+            input.addEventListener('focus', () => {
+                input.select();
+                render();
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    close();
+                } else if (e.key === 'Enter') {
+                    const first = menu.querySelector('.md-menu-item');
+                    if (first) {
+                        e.preventDefault();
+                        first.click();
+                    }
+                }
+            });
+
+            clearBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                input.value = '';
+                clearBtn.classList.add('hidden');
+                if (onClear) onClear();
+                input.focus();
+                render();
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!wrap.contains(e.target) && !menu.contains(e.target)) close();
+            });
+        }
+
+        // Origin: search a place, or leave empty and tap the map / use GPS
+        const originMode = document.getElementById('origin-select'); // hidden: 'gps' (tap map) or 'place' (searched)
+        createPlaceSearch({
+            input: document.getElementById('origin-input'),
+            menu: document.getElementById('origin-menu'),
+            clearBtn: document.getElementById('origin-clear'),
+            leadingItems: [{
+                icon: 'crosshair',
+                title: 'Pinned map location',
+                sub: 'Tap the map to set your starting point',
+                pick: () => { originMode.value = 'gps'; }
+            }],
+            onPick: ({ name, coords }) => {
+                originMode.value = 'place';
+                setUserLocation(coords[0], coords[1], name);
+                map.panTo(coords);
+            },
+            onClear: () => { originMode.value = 'gps'; },
+            onType: (v) => { if (!v.trim()) originMode.value = 'gps'; }
+        });
+
+        // Destination
+        createPlaceSearch({
+            input: document.getElementById('destination-input'),
+            menu: document.getElementById('destination-menu'),
+            clearBtn: document.getElementById('destination-clear'),
+            onPick: ({ name, coords }) => { selectedDest = { name, coords }; },
+            onClear: () => { selectedDest = null; },
+            onType: (v) => { if (selectedDest && v !== selectedDest.name) selectedDest = null; }
         });
 
         // -------------------------------------------------------------
@@ -978,13 +1276,12 @@
         }
 
         document.getElementById('find-route-btn').addEventListener('click', async () => {
-            const destKey = document.getElementById('destination-select').value;
-            if (!destKey) {
-                alert("Please select a destination landmark!");
+            if (!selectedDest) {
+                alert("Please search for and select a destination!");
                 return;
             }
 
-            const destLandmark = LANDMARKS[destKey];
+            const destLandmark = selectedDest;
             const destCoords = destLandmark.coords;
 
             document.getElementById('loading-indicator').classList.remove('hidden');
@@ -998,7 +1295,7 @@
                 iconAnchor: [18, 18]
             });
             endMarker = L.marker(destCoords, { icon: destIcon }).addTo(map);
-            endMarker.bindPopup(`<b>Destination:</b> ${destLandmark.name}`).openPopup();
+            endMarker.bindPopup(`<b>Destination:</b> ${esc(destLandmark.name)}`).openPopup();
 
             const snappedResult = await fetchOSRMRoute([userLocation, destCoords]);
 
@@ -1061,7 +1358,7 @@
                     <div class="md-step-num" style="background-color: ${matchedRoute.color}; color: var(--md-on-surface);">2</div>
                     <div class="text-xs" style="color: var(--md-on-surface);">
                         <span class="text-sm font-medium block mb-0.5">Board ${matchedRoute.vehicle}</span>
-                        <p style="color: var(--md-on-surface-variant);">Ride along road path towards <b>${destLandmark.name}</b>.</p>
+                        <p style="color: var(--md-on-surface-variant);">Ride along road path towards <b>${esc(destLandmark.name)}</b>.</p>
                     </div>
                 </div>
 
@@ -1069,7 +1366,7 @@
                     <div class="md-step-num" style="background: var(--md-outline); color: var(--md-surface);">3</div>
                     <div class="text-xs" style="color: var(--md-on-surface);">
                         <span class="text-sm font-medium block mb-0.5">Alight at Destination</span>
-                        <p style="color: var(--md-on-surface-variant);">Disembark at <b>${destLandmark.name}</b> stop point.</p>
+                        <p style="color: var(--md-on-surface-variant);">Disembark at <b>${esc(destLandmark.name)}</b> stop point.</p>
                     </div>
                 </div>
             `;
