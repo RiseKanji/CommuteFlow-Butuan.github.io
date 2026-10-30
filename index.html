@@ -548,12 +548,26 @@
             bancasi: { name: "Bancasi Airport", coords: [8.9485, 125.4850] },
             ampayon: { name: "CSU Ampayon Campus", coords: [8.9570, 125.6012] },
             fsuu: { name: "FSUU / Urios", coords: [8.9470, 125.5480] },
-            baan: { name: "Baan Km 3 Crossing", coords: [8.9610, 125.5585] },
+            baan: { name: "Baan Viaduct", coords: [8.9542, 125.5580] },
+            nissan: { name: "Nissan", coords: [8.9545, 125.5700] },
+            tiniwisan: { name: "Tiniwisan Crossing", coords: [8.9550, 125.5800] },
+            bmc: { name: "Butuan Medical Center", coords: [8.9585, 125.5900] },
             santoNino: { name: "Santo Niño", coords: [8.9820, 125.6200] },
             maguinda: { name: "Maguinda", coords: [8.8750, 125.6450] },
             tungao: { name: "Tungao", coords: [8.8500, 125.4500] },
             deOro: { name: "De Oro", coords: [8.9100, 125.6300] }
         };
+
+        // -------------------------------------------------------------
+        // DIRECT STRAIGHT HIGHWAY SEGMENT: BRIDGE -> CSU AMPAYON
+        // Corresponds to Baan Viaduct -> Nissan -> Tiniwisan Crossing -> CSU Ampayon
+        // -------------------------------------------------------------
+        const STRAIGHT_HIGHWAY_EAST = [
+            LANDMARKS.baan.coords,
+            LANDMARKS.nissan.coords,
+            LANDMARKS.tiniwisan.coords,
+            LANDMARKS.ampayon.coords
+        ];
 
         // -------------------------------------------------------------
         // OFFICIAL LPTRP ROUTES (R1 - R7) ACCORDING TO ORDINANCE 7194-2024
@@ -587,8 +601,7 @@
                 waypoints: [
                     LANDMARKS.guingona.coords,
                     LANDMARKS.robinsons.coords,
-                    [8.9520, 125.5650],
-                    LANDMARKS.ampayon.coords
+                    ...STRAIGHT_HIGHWAY_EAST
                 ]
             },
             R3: {
@@ -604,7 +617,7 @@
                     LANDMARKS.cityhall.coords,
                     LANDMARKS.guingona.coords,
                     LANDMARKS.fsuu.coords,
-                    LANDMARKS.ampayon.coords
+                    ...STRAIGHT_HIGHWAY_EAST
                 ]
             },
             R4: {
@@ -617,8 +630,7 @@
                 desc: "Jeepney Terminal - Rosales Ave - JAQNO - R. Calo St - T. Sanchez St - M. Calo St - Ampayon - De Oro vice versa",
                 waypoints: [
                     LANDMARKS.langihan.coords,
-                    LANDMARKS.baan.coords,
-                    LANDMARKS.ampayon.coords,
+                    ...STRAIGHT_HIGHWAY_EAST,
                     LANDMARKS.deOro.coords
                 ]
             },
@@ -633,7 +645,7 @@
                 waypoints: [
                     LANDMARKS.langihan.coords,
                     LANDMARKS.fsuu.coords,
-                    LANDMARKS.ampayon.coords,
+                    ...STRAIGHT_HIGHWAY_EAST,
                     LANDMARKS.santoNino.coords
                 ]
             },
@@ -961,7 +973,7 @@
                     <div class="md-step-num" style="background-color: ${matchedRoute.color}; color: white;">${matchedRoute.num}</div>
                     <div class="text-xs">
                         <span class="text-sm font-medium block mb-0.5">Board ${esc(matchedRoute.vehicle)}</span>
-                        <p style="color: var(--md-on-surface-variant);">Take ${esc(matchedRoute.shortName)} following ordinance route.</p>
+                        <p style="color: var(--md-on-surface-variant);">Take ${esc(matchedRoute.shortName)} along the direct trunk road.</p>
                     </div>
                 </div>
                 <div class="md-step">
