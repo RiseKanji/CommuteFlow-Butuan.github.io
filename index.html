@@ -307,6 +307,11 @@
             color: var(--md-on-tertiary-container);
             border: 1px solid rgba(143, 192, 169, 0.9);
         }
+        .md-badge--warn {
+            background: rgba(245, 158, 11, 0.2);
+            color: #6B4A00;
+            border: 1px solid rgba(245, 158, 11, 0.7);
+        }
 
         .md-card { background: var(--md-surface-container); border-radius: 24px; }
         .md-stats { background: rgba(200, 213, 185, 0.55); border-radius: 24px; color: var(--md-on-secondary-container); }
@@ -506,9 +511,7 @@
                     <span class="text-[11px] font-medium" style="color: var(--md-primary-text);">Tap to preview</span>
                 </div>
 
-                <div class="grid grid-cols-1 gap-2.5" id="route-legend-list">
-                    <!-- Populated dynamically -->
-                </div>
+                <div class="grid grid-cols-1 gap-2.5" id="route-legend-list"></div>
             </div>
         </div>
 
@@ -534,19 +537,19 @@
         lucide.createIcons();
 
         // -------------------------------------------------------------
-        // OFFICIAL LANDMARKS & STOPS FROM LPTRP MAP
+        // OFFICIAL LANDMARKS & TRANSFER HUBS
         // -------------------------------------------------------------
         const LANDMARKS = {
-            langihan: { name: "Langihan Terminal", coords: [8.958816478067472, 125.53592922048036] },
-            guingona: { name: "Guingona Park", coords: [8.947706469915914, 125.54320894676637] },
-            gaisano: { name: "Gaisano City Butuan", coords: [8.944205378532025, 125.5320806090888] },
+            langihan: { name: "Langihan Terminal", coords: [8.958816478067472, 125.53592922048036], hub: true },
+            guingona: { name: "Guingona Park", coords: [8.947706469915914, 125.54320894676637], hub: true },
+            gaisano: { name: "Gaisano City Butuan", coords: [8.944205378532025, 125.5320806090888], hub: true },
             smCity: { name: "SM City Butuan", coords: [8.945418611254064, 125.53346845313969] },
             robinsons: { name: "Robinsons Place Butuan", coords: [8.942681192695554, 125.52010852523374] },
-            cityhall: { name: "Butuan City Hall", coords: [8.953266630831296, 125.52929699825046] },
-            capitol: { name: "Provincial Capitol", coords: [8.940422798536666, 125.53383997022637] },
+            cityhall: { name: "Butuan City Hall", coords: [8.953266630831296, 125.52929699825046], hub: true },
+            capitol: { name: "Provincial Capitol", coords: [8.940422798536666, 125.53383997022637], hub: true },
             libertad: { name: "Libertad Barangay Hall", coords: [8.94935409608516, 125.5083788101281] },
             bancasi: { name: "Bancasi Airport", coords: [8.948365923809346, 125.48116463935851] },
-            ampayon: { name: "CSU Ampayon Campus", coords: [8.95742539512112, 125.5974320963977] },
+            ampayon: { name: "CSU Ampayon Campus", coords: [8.95742539512112, 125.5974320963977], hub: true },
             fsuu: { name: "FSUU / Urios", coords: [8.947951543269495, 125.54205008273482] },
             baan: { name: "Baan Viaduct", coords: [8.951291310947138, 125.55227816602414] },
             nissan: { name: "Nissan", coords: [8.953694695426416, 125.56403180739079] },
@@ -896,7 +899,7 @@
         });
 
         // -------------------------------------------------------------
-        // ROUTING & CALCULATION LOGIC
+        // ADVANCED ROUTING, FEEDER GLOW & TRANSFER CALCULATION
         // -------------------------------------------------------------
         function getDistance(c1, c2) {
             const R = 6371;
@@ -904,6 +907,19 @@
             const dLon = (c2[1] - c1[1]) * Math.PI / 180;
             const a = Math.sin(dLat/2)**2 + Math.cos(c1[0]*Math.PI/180)*Math.cos(c2[0]*Math.PI/180)*Math.sin(dLon/2)**2;
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+
+        function findNearestWaypointOnRoute(point, route) {
+            let bestWp = route.waypoints[0];
+            let minDist = Infinity;
+            route.waypoints.forEach(wp => {
+                const d = getDistance(point, wp);
+                if (d < minDist) {
+                    minDist = d;
+                    bestWp = wp;
+                }
+            });
+            return { wp: bestWp, dist: minDist };
         }
 
         document.getElementById('find-route-btn').addEventListener('click', async () => {
@@ -922,50 +938,131 @@
             endMarker = L.marker(destCoords, { icon: destIcon }).addTo(map);
             endMarker.bindPopup(`<b>Destination:</b> ${esc(selectedDest.name)}`).openPopup();
 
-            const snappedResult = await fetchOSRMRoute([userLocation, destCoords]);
+            // Find best matching route for start and dest
             const routesList = Object.values(ROUTES);
-            let matchedRoute = routesList[0];
-            let minScore = Infinity;
+            let bestRouteA = routesList[0];
+            let bestStartWp = bestRouteA.waypoints[0];
+            let minStartDist = Infinity;
 
             routesList.forEach(r => {
-                let sDist = Math.min(...r.waypoints.map(wp => getDistance(userLocation, wp)));
-                let dDist = Math.min(...r.waypoints.map(wp => getDistance(destCoords, wp)));
-                if (sDist + dDist < minScore) { minScore = sDist + dDist; matchedRoute = r; }
+                const res = findNearestWaypointOnRoute(userLocation, r);
+                if (res.dist < minStartDist) {
+                    minStartDist = res.dist;
+                    bestRouteA = r;
+                    bestStartWp = res.wp;
+                }
+            });
+
+            let bestRouteB = bestRouteA;
+            let bestDestWp = bestRouteA.waypoints[0];
+            let minDestDist = Infinity;
+
+            routesList.forEach(r => {
+                const res = findNearestWaypointOnRoute(destCoords, r);
+                if (res.dist < minDestDist) {
+                    minDestDist = res.dist;
+                    bestRouteB = r;
+                    bestDestWp = res.wp;
+                }
             });
 
             activeHighlightGroup.clearLayers();
-            if (snappedResult) {
-                L.polyline(snappedResult.coordinates, { color: '#2A2D38', weight: 9, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }).addTo(activeHighlightGroup);
-                const activePolyline = L.polyline(snappedResult.coordinates, { color: matchedRoute.color, weight: 5, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }).addTo(activeHighlightGroup);
-                map.fitBounds(activePolyline.getBounds(), { padding: [50, 50] });
 
-                document.getElementById('dist-val').innerText = `${snappedResult.distance} km`;
-                document.getElementById('time-val').innerText = `${snappedResult.duration} mins`;
+            const isDirect = (bestRouteA.id === bestRouteB.id) || (minStartDist < 0.8 && minDestDist < 0.8);
+            let totalDist = 0;
+            let totalDuration = 0;
+
+            if (isDirect) {
+                // Single Route with optional Feeder
+                if (minStartDist > 0.3) {
+                    // Draw Feeder (Glowing/Dashed Amber line)
+                    const feederRes = await fetchOSRMRoute([userLocation, bestStartWp]);
+                    if (feederRes) {
+                        totalDist += parseFloat(feederRes.distance);
+                        totalDuration += feederRes.duration;
+                        L.polyline(feederRes.coordinates, { color: '#F59E0B', weight: 6, dashArray: '6, 8', opacity: 0.9 }).addTo(activeHighlightGroup);
+                    }
+                }
+
+                const mainRes = await fetchOSRMRoute([bestStartWp, destCoords]);
+                if (mainRes) {
+                    totalDist += parseFloat(mainRes.distance);
+                    totalDuration += mainRes.duration;
+                    L.polyline(mainRes.coordinates, { color: bestRouteA.color, weight: 5, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }).addTo(activeHighlightGroup);
+                    map.fitBounds(L.polyline(mainRes.coordinates).getBounds(), { padding: [50, 50] });
+                }
+
+                document.getElementById('transfers-badge').innerText = "Direct Route";
+                document.getElementById('transfers-badge').className = "md-badge md-badge--ok";
+
+                document.getElementById('instructions-container').innerHTML = `
+                    ${minStartDist > 0.3 ? `
+                    <div class="md-step">
+                        <div class="md-step-num" style="background: #F59E0B; color: white;">🚶</div>
+                        <div class="text-xs">
+                            <span class="text-sm font-medium block mb-0.5">Feeder / Walk to Route</span>
+                            <p style="color: var(--md-on-surface-variant);">Head to the nearest pickup point for <b>${esc(bestRouteA.name)}</b> (dashed amber line).</p>
+                        </div>
+                    </div>` : ''}
+                    <div class="md-step">
+                        <div class="md-step-num" style="background-color: ${bestRouteA.color}; color: white;">${bestRouteA.num}</div>
+                        <div class="text-xs">
+                            <span class="text-sm font-medium block mb-0.5">Board ${esc(bestRouteA.vehicle)}</span>
+                            <p style="color: var(--md-on-surface-variant);">Ride directly to <b>${esc(selectedDest.name)}</b>.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Transfer Route via Hub (e.g. Guingona Park or Langihan)
+                const transferHub = LANDMARKS.guingona.coords;
+                const hubName = "Guingona Park Transfer Hub";
+
+                const leg1 = await fetchOSRMRoute([userLocation, transferHub]);
+                const leg2 = await fetchOSRMRoute([transferHub, destCoords]);
+
+                if (leg1) { totalDist += parseFloat(leg1.distance); totalDuration += leg1.duration; }
+                if (leg2) { totalDist += parseFloat(leg2.distance); totalDuration += leg2.duration; }
+
+                if (minStartDist > 0.3) {
+                    const feederRes = await fetchOSRMRoute([userLocation, bestStartWp]);
+                    if (feederRes) L.polyline(feederRes.coordinates, { color: '#F59E0B', weight: 6, dashArray: '6, 8', opacity: 0.9 }).addTo(activeHighlightGroup);
+                }
+
+                L.polyline(leg1.coordinates, { color: bestRouteA.color, weight: 5, opacity: 0.95 }).addTo(activeHighlightGroup);
+                L.polyline(leg2.coordinates, { color: bestRouteB.color, weight: 5, opacity: 0.95 }).addTo(activeHighlightGroup);
+
+                map.fitBounds(L.polyline([...leg1.coordinates, ...leg2.coordinates]).getBounds(), { padding: [50, 50] });
+
+                document.getElementById('transfers-badge').innerText = "1 Transfer Required";
+                document.getElementById('transfers-badge').className = "md-badge md-badge--warn";
+
+                document.getElementById('instructions-container').innerHTML = `
+                    <div class="md-step">
+                        <div class="md-step-num" style="background-color: ${bestRouteA.color}; color: white;">1</div>
+                        <div class="text-xs">
+                            <span class="text-sm font-medium block mb-0.5">Board ${esc(bestRouteA.vehicle)}</span>
+                            <p style="color: var(--md-on-surface-variant);">Take ${esc(bestRouteA.shortName)} to <b>${hubName}</b>.</p>
+                        </div>
+                    </div>
+                    <div class="md-step">
+                        <div class="md-step-num" style="background: var(--md-primary); color: var(--md-on-primary);">🔄</div>
+                        <div class="text-xs">
+                            <span class="text-sm font-medium block mb-0.5">Transfer at Hub</span>
+                            <p style="color: var(--md-on-surface-variant);">Alight at Guingona Park and switch to <b>${esc(bestRouteB.shortName)}</b>.</p>
+                        </div>
+                    </div>
+                    <div class="md-step">
+                        <div class="md-step-num" style="background-color: ${bestRouteB.color}; color: white;">2</div>
+                        <div class="text-xs">
+                            <span class="text-sm font-medium block mb-0.5">Board ${esc(bestRouteB.vehicle)}</span>
+                            <p style="color: var(--md-on-surface-variant);">Ride to <b>${esc(selectedDest.name)}</b>.</p>
+                        </div>
+                    </div>
+                `;
             }
 
-            document.getElementById('instructions-container').innerHTML = `
-                <div class="md-step">
-                    <div class="md-step-num" style="background: var(--md-primary); color: var(--md-on-primary);">1</div>
-                    <div class="text-xs">
-                        <span class="text-sm font-medium block mb-0.5">Walk to nearest LPTRP stop</span>
-                        <p style="color: var(--md-on-surface-variant);">Head to the nearest loading station for <b>${esc(matchedRoute.name)}</b>.</p>
-                    </div>
-                </div>
-                <div class="md-step">
-                    <div class="md-step-num" style="background-color: ${matchedRoute.color}; color: white;">${matchedRoute.num}</div>
-                    <div class="text-xs">
-                        <span class="text-sm font-medium block mb-0.5">Board ${esc(matchedRoute.vehicle)}</span>
-                        <p style="color: var(--md-on-surface-variant);">Take ${esc(matchedRoute.shortName)} along the direct trunk road.</p>
-                    </div>
-                </div>
-                <div class="md-step">
-                    <div class="md-step-num" style="background: var(--md-outline); color: var(--md-surface);">3</div>
-                    <div class="text-xs">
-                        <span class="text-sm font-medium block mb-0.5">Arrive at Destination</span>
-                        <p style="color: var(--md-on-surface-variant);">Alight at <b>${esc(selectedDest.name)}</b>.</p>
-                    </div>
-                </div>
-            `;
+            document.getElementById('dist-val').innerText = `${totalDist.toFixed(2)} km`;
+            document.getElementById('time-val').innerText = `${Math.round(totalDuration)} mins`;
 
             document.getElementById('loading-indicator').classList.add('hidden');
             document.getElementById('route-output').classList.remove('hidden');
@@ -976,7 +1073,7 @@
         async function previewRoute(routeId) {
             const route = ROUTES[routeId];
             if (!route) return;
-            document.getElementById('loading-indicator').classList.add('hidden');
+            document.getElementById('loading-indicator').classList.remove('hidden');
 
             let geometry = routeGeometryCache[route.id];
             if (!geometry) {
