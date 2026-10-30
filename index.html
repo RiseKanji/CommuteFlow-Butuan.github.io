@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#FAF3DD">
-    <title>CommuteFlow Butuan - Mobile Transit Navigator (MD3)</title>
+    <title>CommuteFlow Butuan - LPTRP Route Navigator (MD3)</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,7 +22,9 @@
                         r2: '#3B82F6',
                         r3: '#10B981',
                         r4: '#A855F7',
-                        r10: '#F59E0B'
+                        r5: '#F59E0B',
+                        r6: '#EAB308',
+                        r7: '#22C55E'
                     }
                 }
             }
@@ -39,11 +41,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* ---------------------------------------------------------
-           MATERIAL DESIGN 3 — COLOR ROLES (from the palette)
-           Eggshell #FAF3DD · Tea Green #C8D5B9 · Muted Teal #8FC0A9
-           Tropical Teal #68B0AB · Blue Slate #696D7D
-        --------------------------------------------------------- */
         :root {
             --md-surface: #FAF3DD;
             --md-surface-container: #EEEDD6;
@@ -93,16 +90,10 @@
             outline-offset: 2px;
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(105, 109, 125, 0.55); border-radius: 9999px; }
 
-        /* ---------------------------------------------------------
-           MD3 COMPONENTS
-        --------------------------------------------------------- */
-
-        /* State layer (hover / pressed) */
         .md-state { position: relative; overflow: hidden; }
         .md-state::after {
             content: '';
@@ -116,7 +107,6 @@
         .md-state:hover::after { opacity: 0.08; }
         .md-state:active::after { opacity: 0.14; }
 
-        /* Side sheet / bottom sheet */
         .md-sheet {
             background: var(--md-surface);
             color: var(--md-on-surface);
@@ -128,7 +118,6 @@
             }
         }
 
-        /* Outlined select field with notched label */
         .md-field { position: relative; }
         .md-field-label {
             position: absolute;
@@ -143,9 +132,7 @@
             color: var(--md-on-surface-variant);
             z-index: 2;
             pointer-events: none;
-            transition: color 0.15s ease;
         }
-        .md-field:focus-within .md-field-label { color: var(--md-primary-text); }
         .md-field-icon {
             position: absolute;
             left: 15px;
@@ -157,41 +144,6 @@
             pointer-events: none;
             z-index: 1;
         }
-        .md-field-chevron {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            color: var(--md-outline);
-            pointer-events: none;
-            z-index: 1;
-        }
-        .md-select {
-            width: 100%;
-            height: 56px;
-            background: transparent;
-            border: 1px solid var(--md-outline);
-            border-radius: 16px;
-            color: var(--md-on-surface);
-            font-size: 14px;
-            font-weight: 400;
-            padding: 0 40px 0 46px;
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-            outline: none;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-        }
-        .md-select:hover { border-color: var(--md-on-surface); }
-        .md-select:focus {
-            border-color: var(--md-primary-strong);
-            box-shadow: 0 0 0 1px var(--md-primary-strong);
-        }
-        .md-select option { background: var(--md-surface); color: var(--md-on-surface); }
-
-        /* Search input + suggestion menu */
         .md-input {
             width: 100%;
             height: 56px;
@@ -202,9 +154,6 @@
             font-size: 16px;
             padding: 0 46px 0 46px;
             outline: none;
-            text-overflow: ellipsis;
-            -webkit-user-select: text;
-            user-select: text;
             transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
         .md-input::placeholder { color: var(--md-on-surface-variant); opacity: 0.75; }
@@ -228,6 +177,7 @@
             z-index: 3;
         }
         .md-field-clear:hover { background: rgba(105, 109, 125, 0.14); }
+
         .md-menu {
             background: var(--md-surface);
             border: 1px solid var(--md-outline-variant);
@@ -236,7 +186,6 @@
             max-height: 240px;
             overflow-y: auto;
             padding: 6px;
-            -webkit-overflow-scrolling: touch;
         }
         .md-menu-header {
             font-size: 11px;
@@ -275,16 +224,9 @@
             justify-content: center;
             flex-shrink: 0;
         }
-        .md-menu-title, .md-menu-sub {
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .md-menu-title { font-size: 14px; font-weight: 500; line-height: 20px; }
-        .md-menu-sub { font-size: 12px; line-height: 16px; color: var(--md-on-surface-variant); }
+        .md-menu-title { font-size: 14px; font-weight: 500; line-height: 20px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .md-menu-sub { font-size: 12px; line-height: 16px; color: var(--md-on-surface-variant); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Filled button */
         .md-btn-filled {
             width: 100%;
             height: 52px;
@@ -294,18 +236,16 @@
             color: var(--md-on-primary);
             font-size: 14px;
             font-weight: 500;
-            letter-spacing: 0.1px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             cursor: pointer;
             box-shadow: var(--md-elev-2);
-            transition: box-shadow 0.2s ease, background-color 0.2s ease;
+            transition: box-shadow 0.2s ease;
         }
         .md-btn-filled:hover { box-shadow: var(--md-elev-3); }
 
-        /* Filled-tonal icon button */
         .md-icon-btn-tonal {
             width: 56px;
             height: 56px;
@@ -318,10 +258,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.15s ease;
         }
-        .md-icon-btn-tonal:active { transform: scale(0.96); }
-
         .md-icon-btn {
             width: 48px;
             height: 48px;
@@ -335,8 +272,6 @@
             justify-content: center;
             cursor: pointer;
         }
-
-        /* FAB (map reset) */
         .md-fab {
             width: 52px;
             height: 52px;
@@ -351,7 +286,6 @@
             cursor: pointer;
         }
 
-        /* Chips / badges */
         .md-badge {
             display: inline-block;
             max-width: 60%;
@@ -373,44 +307,12 @@
             color: var(--md-on-tertiary-container);
             border: 1px solid rgba(143, 192, 169, 0.9);
         }
-        .md-badge--warn {
-            background: rgba(245, 158, 11, 0.2);
-            color: #6B4A00;
-            border: 1px solid rgba(245, 158, 11, 0.7);
-        }
 
-        /* Cards */
-        .md-card {
-            background: var(--md-surface-container);
-            border-radius: 24px;
-        }
-        .md-stats {
-            background: rgba(200, 213, 185, 0.55);
-            border-radius: 24px;
-            color: var(--md-on-secondary-container);
-        }
-        .md-step {
-            background: var(--md-surface-container);
-            border-radius: 20px;
-            padding: 14px;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-        .md-step-num {
-            width: 28px;
-            height: 28px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
+        .md-card { background: var(--md-surface-container); border-radius: 24px; }
+        .md-stats { background: rgba(200, 213, 185, 0.55); border-radius: 24px; color: var(--md-on-secondary-container); }
+        .md-step { background: var(--md-surface-container); border-radius: 20px; padding: 14px; display: flex; align-items: flex-start; gap: 12px; }
+        .md-step-num { width: 28px; height: 28px; border-radius: 9999px; font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-        /* List items (route legend) */
         .md-list-item {
             background: var(--md-surface-container);
             border-radius: 20px;
@@ -431,26 +333,14 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            color: var(--md-on-surface);
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
         }
 
-        /* Typography helpers */
-        .md-overline {
-            font-size: 12px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            color: var(--md-primary-text);
-        }
-        .md-label-small {
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            color: var(--md-on-surface-variant);
-        }
+        .md-overline { font-size: 12px; font-weight: 500; letter-spacing: 0.5px; color: var(--md-primary-text); }
+        .md-label-small { font-size: 11px; font-weight: 500; letter-spacing: 0.5px; color: var(--md-on-surface-variant); }
 
-        /* ---------------------------------------------------------
-           MAP MARKERS & LEAFLET RESTYLE
-        --------------------------------------------------------- */
         .user-location-marker {
             width: 22px;
             height: 22px;
@@ -458,12 +348,6 @@
             border: 3px solid #FAF3DD;
             border-radius: 50%;
             box-shadow: 0 0 0 0 rgba(104, 176, 171, 0.8), 0 2px 6px rgba(42, 45, 56, 0.35);
-            animation: pulse-ring 2s infinite;
-        }
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(104, 176, 171, 0.8), 0 2px 6px rgba(42, 45, 56, 0.35); }
-            70% { box-shadow: 0 0 0 16px rgba(104, 176, 171, 0), 0 2px 6px rgba(42, 45, 56, 0.35); }
-            100% { box-shadow: 0 0 0 0 rgba(104, 176, 171, 0), 0 2px 6px rgba(42, 45, 56, 0.35); }
         }
 
         .leaflet-popup-content-wrapper {
@@ -475,7 +359,6 @@
         }
         .leaflet-popup-tip { background: var(--md-surface); }
         .leaflet-container a.leaflet-popup-close-button { color: var(--md-outline); }
-
         .leaflet-tooltip {
             background: var(--md-surface);
             color: var(--md-on-surface);
@@ -485,65 +368,27 @@
             font-size: 12px;
             padding: 6px 10px;
         }
-        .leaflet-tooltip-top:before { border-top-color: var(--md-surface); }
-        .leaflet-tooltip-bottom:before { border-bottom-color: var(--md-surface); }
-        .leaflet-tooltip-left:before { border-left-color: var(--md-surface); }
-        .leaflet-tooltip-right:before { border-right-color: var(--md-surface); }
-
-        .leaflet-control-attribution {
-            background: rgba(250, 243, 221, 0.88) !important;
-            color: var(--md-on-surface-variant) !important;
-            border-radius: 8px 0 0 0;
-            font-size: 10px;
-        }
-        .leaflet-control-attribution a { color: var(--md-primary-text) !important; }
-
-        .leaflet-bar {
-            border: none !important;
-            border-radius: 16px !important;
-            box-shadow: var(--md-elev-3) !important;
-            overflow: hidden;
-        }
+        .leaflet-bar { border: none !important; border-radius: 16px !important; box-shadow: var(--md-elev-3) !important; overflow: hidden; }
         .leaflet-bar a {
             background: var(--md-surface) !important;
             color: var(--md-on-surface) !important;
             width: 44px !important;
             height: 44px !important;
             line-height: 44px !important;
-            font-size: 20px !important;
-            border-bottom: 1px solid var(--md-outline-variant) !important;
-        }
-        .leaflet-bar a:last-child { border-bottom: none !important; }
-        .leaflet-bar a:hover { background: var(--md-surface-container) !important; }
-        .leaflet-control-zoom {
-            margin-right: 16px !important;
-            margin-bottom: 16px !important;
         }
 
-        /* Material Design 3 Bottom Sheet transformations (mobile) */
         @media (max-width: 767px) {
             #sidebar {
                 position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                top: auto;
-                width: 100%;
-                max-height: 85vh;
-                height: auto;
+                bottom: 0; left: 0; right: 0; top: auto;
+                width: 100%; max-height: 85vh; height: auto;
                 border-radius: 28px 28px 0 0;
                 transform: translateY(calc(100% - 76px));
                 transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
                 z-index: 40;
                 box-shadow: 0 -4px 20px rgba(42, 45, 56, 0.22);
             }
-            #sidebar.drawer-open {
-                transform: translateY(0%);
-            }
-            .mobile-drawer-overlay {
-                display: block;
-            }
-            /* keep zoom + attribution visible above the collapsed sheet */
+            #sidebar.drawer-open { transform: translateY(0%); }
             .leaflet-bottom { bottom: 76px; }
         }
     </style>
@@ -554,14 +399,11 @@
     <div id="drawer-overlay" class="fixed inset-0 backdrop-blur-[2px] z-30 hidden md:hidden transition-opacity" style="background: rgba(42, 45, 56, 0.40);"></div>
 
     <!-- Sidebar / MD3 Bottom Sheet -->
-    <div id="sidebar" class="md-sheet flex flex-col w-full md:w-[440px] md:relative md:translate-y-0 md:h-full rounded-t-[28px] md:rounded-t-none md:rounded-r-[28px] overflow-hidden">
+    <div id="sidebar" class="md-sheet flex flex-col w-full md:w-[460px] md:relative md:translate-y-0 md:h-full rounded-t-[28px] md:rounded-t-none md:rounded-r-[28px] overflow-hidden">
 
-        <!-- Mobile Pull Handle & Header -->
+        <!-- Header -->
         <div id="drawer-header" class="px-4 pt-3 pb-3 md:px-6 md:pt-6 md:pb-4 flex flex-col shrink-0 cursor-pointer md:cursor-default">
-
-            <!-- MD3 Drag Handle -->
             <div class="w-8 h-1 rounded-full self-center mb-3 md:hidden" style="background: var(--md-outline); opacity: 0.55;"></div>
-
             <div class="flex justify-between items-center w-full">
                 <div class="flex items-center gap-3.5">
                     <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm" style="background: var(--md-primary);">
@@ -569,14 +411,12 @@
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1 class="text-[22px] leading-7 font-medium" style="color: var(--md-on-surface);">CommuteFlow</h1>
-                            <span class="md-badge" style="line-height: 18px; padding: 0 8px; font-size: 10px;">BXU</span>
+                            <h1 class="text-[20px] leading-7 font-medium">CommuteFlow Butuan</h1>
+                            <span class="md-badge" style="font-size: 10px;">LPTRP R1-R7</span>
                         </div>
-                        <p class="text-xs" style="color: var(--md-on-surface-variant);">Butuan PUJ / Tricycle Road Navigator</p>
+                        <p class="text-xs" style="color: var(--md-on-surface-variant);">City Ordinance No. 7194-2024</p>
                     </div>
                 </div>
-
-                <!-- Toggle Button (Mobile) -->
                 <button id="toggle-drawer-btn" class="md-icon-btn md-state md:hidden">
                     <i id="toggle-icon" data-lucide="chevron-up" class="w-5 h-5 transition-transform duration-300"></i>
                 </button>
@@ -585,73 +425,66 @@
 
         <div class="h-px shrink-0 mx-4 md:mx-6" style="background: var(--md-outline-variant);"></div>
 
-        <!-- Scrollable Controls Container -->
+        <!-- Controls Container -->
         <div class="p-4 md:p-6 overflow-y-auto space-y-5 flex-1 max-h-[calc(85vh-76px)] md:max-h-none">
 
-            <!-- Origin & Destination Selector -->
+            <!-- Plan Trip Card -->
             <div class="md-card p-4 md:p-5 space-y-4">
-
                 <div class="flex justify-between items-center gap-2">
                     <span class="md-overline">Plan your trip</span>
                     <span id="origin-mode-badge" class="md-badge">Pinned Location</span>
                 </div>
 
-                <!-- Origin -->
                 <div class="flex gap-2 items-center pt-1">
                     <div class="md-field flex-1">
                         <label class="md-field-label" for="origin-input">Starting Point</label>
                         <i data-lucide="map-pin" class="md-field-icon"></i>
                         <input type="hidden" id="origin-select" value="gps">
-                        <input id="origin-input" type="text" class="md-input" placeholder="Search a place or tap the map" autocomplete="off" autocapitalize="off" spellcheck="false">
-                        <button id="origin-clear" type="button" class="md-field-clear flex items-center justify-center hidden" aria-label="Clear starting point"><i data-lucide="x" class="w-4 h-4"></i></button>
+                        <input id="origin-input" type="text" class="md-input" placeholder="Search place or tap map" autocomplete="off">
+                        <button id="origin-clear" type="button" class="md-field-clear flex items-center justify-center hidden"><i data-lucide="x" class="w-4 h-4"></i></button>
                     </div>
-                    <button id="locate-btn" title="Detect Current GPS Location" class="md-icon-btn-tonal md-state">
+                    <button id="locate-btn" title="Detect GPS Location" class="md-icon-btn-tonal md-state">
                         <i data-lucide="crosshair" class="w-5 h-5"></i>
                     </button>
                 </div>
-
                 <div id="origin-menu" class="md-menu hidden"></div>
 
-                <!-- Arrow Divider -->
                 <div class="flex justify-center -my-1.5">
                     <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background: var(--md-secondary-container); color: var(--md-on-secondary-container);">
                         <i data-lucide="arrow-down-up" class="w-4 h-4"></i>
                     </div>
                 </div>
 
-                <!-- Destination -->
                 <div class="md-field">
                     <label class="md-field-label" for="destination-input">Target Destination</label>
                     <i data-lucide="navigation" class="md-field-icon"></i>
-                    <input id="destination-input" type="text" class="md-input" placeholder="Search for a destination" autocomplete="off" autocapitalize="off" spellcheck="false">
-                    <button id="destination-clear" type="button" class="md-field-clear flex items-center justify-center hidden" aria-label="Clear destination"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    <input id="destination-input" type="text" class="md-input" placeholder="Search destination" autocomplete="off">
+                    <button id="destination-clear" type="button" class="md-field-clear flex items-center justify-center hidden"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>
-
                 <div id="destination-menu" class="md-menu hidden"></div>
 
                 <button id="find-route-btn" class="md-btn-filled md-state">
                     <i data-lucide="route" class="w-5 h-5"></i>
-                    Snap Route & Get Ride Directions
+                    Find LPTRP Route & Directions
                 </button>
             </div>
 
             <!-- Loading Indicator -->
             <div id="loading-indicator" class="hidden p-4 rounded-2xl flex items-center gap-3" style="background: rgba(143, 192, 169, 0.3);">
                 <div class="w-5 h-5 rounded-full animate-spin" style="border: 2px solid var(--md-primary-strong); border-top-color: transparent;"></div>
-                <span class="text-xs font-medium" style="color: var(--md-on-surface);">Fetching street geometry from OSRM...</span>
+                <span class="text-xs font-medium">Snapping route geometry from OSRM...</span>
             </div>
 
-            <!-- Route Result & Step-by-Step Instructions -->
+            <!-- Route Result -->
             <div id="route-output" class="hidden space-y-4">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-medium tracking-wide flex items-center gap-1.5" style="color: var(--md-primary-text);">
                         <i data-lucide="sparkles" class="w-4 h-4"></i>
                         Commute Recommendations
                     </h2>
-                    <span id="transfers-badge" class="md-badge md-badge--ok">Direct Ride</span>
+                    <span id="transfers-badge" class="md-badge md-badge--ok">Direct Route</span>
                 </div>
 
-                <!-- Distance & Duration Summary Card -->
                 <div class="md-stats grid grid-cols-2 text-center">
                     <div class="py-4">
                         <span class="md-label-small block mb-0.5" style="color: var(--md-on-secondary-container); opacity: 0.8;">Road Distance</span>
@@ -663,102 +496,34 @@
                     </div>
                 </div>
 
-                <!-- Dynamic Steps List -->
-                <div id="instructions-container" class="space-y-3">
-                    <!-- Loaded dynamically via JS -->
-                </div>
+                <div id="instructions-container" class="space-y-3"></div>
             </div>
 
-            <!-- Butuan Commute Routes Legend -->
+            <!-- Official LPTRP Routes Legend (R1 - R7) -->
             <div class="space-y-3 pt-1">
                 <div class="flex items-center justify-between px-1">
-                    <h3 class="text-sm font-medium tracking-wide" style="color: var(--md-on-surface);">Road-Snapped City Lines</h3>
+                    <h3 class="text-sm font-medium tracking-wide">Official LPTRP Routes (R1 - R7)</h3>
                     <span class="text-[11px] font-medium" style="color: var(--md-primary-text);">Tap to preview</span>
                 </div>
 
-                <div class="grid grid-cols-1 gap-2.5">
-
-                    <!-- Route 1 -->
-                    <div class="md-list-item md-state" onclick="previewRoute('R1')">
-                        <div class="flex items-center gap-3.5 min-w-0">
-                            <span class="md-route-avatar bg-r1"><i data-lucide="bus" class="w-5 h-5"></i></span>
-                            <div class="min-w-0">
-                                <h4 class="text-sm font-medium">Route 1 (R1)</h4>
-                                <p class="text-xs" style="color: var(--md-on-surface-variant);">Langihan - City Center - Bancasi Loop</p>
-                            </div>
-                        </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
-                    </div>
-
-                    <!-- Route 2 -->
-                    <div class="md-list-item md-state" onclick="previewRoute('R2')">
-                        <div class="flex items-center gap-3.5 min-w-0">
-                            <span class="md-route-avatar bg-r2"><i data-lucide="bus" class="w-5 h-5"></i></span>
-                            <div class="min-w-0">
-                                <h4 class="text-sm font-medium">Route 2 (R2)</h4>
-                                <p class="text-xs" style="color: var(--md-on-surface-variant);">JC Aquino - Montilla - Ampayon Line</p>
-                            </div>
-                        </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
-                    </div>
-
-                    <!-- Route 3 -->
-                    <div class="md-list-item md-state" onclick="previewRoute('R3')">
-                        <div class="flex items-center gap-3.5 min-w-0">
-                            <span class="md-route-avatar bg-r3"><i data-lucide="bus" class="w-5 h-5"></i></span>
-                            <div class="min-w-0">
-                                <h4 class="text-sm font-medium">Route 3 (R3)</h4>
-                                <p class="text-xs" style="color: var(--md-on-surface-variant);">Villa Kananga - Libertad Highway</p>
-                            </div>
-                        </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
-                    </div>
-
-                    <!-- Route 4 -->
-                    <div class="md-list-item md-state" onclick="previewRoute('R4')">
-                        <div class="flex items-center gap-3.5 min-w-0">
-                            <span class="md-route-avatar bg-r4"><i data-lucide="bus" class="w-5 h-5"></i></span>
-                            <div class="min-w-0">
-                                <h4 class="text-sm font-medium">Route 4 (R4)</h4>
-                                <p class="text-xs" style="color: var(--md-on-surface-variant);">Baan - Km 3 East Bypass Line</p>
-                            </div>
-                        </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
-                    </div>
-
-                    <!-- Route 10 -->
-                    <div class="md-list-item md-state" onclick="previewRoute('R10')">
-                        <div class="flex items-center gap-3.5 min-w-0">
-                            <span class="md-route-avatar bg-r10"><i data-lucide="car" class="w-5 h-5"></i></span>
-                            <div class="min-w-0">
-                                <h4 class="text-sm font-medium">Route 10 (R10)</h4>
-                                <p class="text-xs" style="color: var(--md-on-surface-variant);">Inner City Tricycle / Feeder Connector</p>
-                            </div>
-                        </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
-                    </div>
-
+                <div class="grid grid-cols-1 gap-2.5" id="route-legend-list">
+                    <!-- Populated dynamically -->
                 </div>
             </div>
-
         </div>
 
-        <!-- Sidebar Footer -->
         <div class="px-4 py-3 text-center text-[11px] shrink-0 font-medium" style="background: var(--md-surface-container); color: var(--md-on-surface-variant); border-top: 1px solid var(--md-outline-variant);">
-            OpenStreetMap Tiles + Nominatim Search + OSRM Engine
+            Ordinance No. 7194-2024 • OpenStreetMap + OSRM
         </div>
     </div>
 
     <!-- Map Container -->
     <div class="flex-1 relative h-full w-full">
-        <!-- Floating Reset Map Camera Button -->
         <div class="absolute top-4 right-4 z-[10]">
             <button id="reset-map-btn" class="md-fab md-state" title="Reset View">
                 <i data-lucide="maximize" class="w-5 h-5"></i>
             </button>
         </div>
-
-        <!-- Leaflet Map Canvas -->
         <div id="map"></div>
     </div>
 
@@ -766,88 +531,140 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // Initialize Icons
         lucide.createIcons();
 
         // -------------------------------------------------------------
-        // 1. BUTUAN CITY LANDMARKS & COMMUTE ROUTES
+        // OFFICIAL LANDMARKS & STOPS FROM LPTRP MAP
         // -------------------------------------------------------------
         const LANDMARKS = {
-            guingona: { name: "Guingona Park", coords: [8.9490, 125.5435] },
             langihan: { name: "Langihan Terminal", coords: [8.9592, 125.5398] },
-            ampayon: { name: "CSU Ampayon Campus", coords: [8.9570, 125.6012] },
+            guingona: { name: "Guingona Park", coords: [8.9490, 125.5435] },
             gaisano: { name: "Gaisano Mall Butuan", coords: [8.9458, 125.5358] },
+            smCity: { name: "SM City Butuan", coords: [8.9440, 125.5310] },
             robinsons: { name: "Robinsons Place Butuan", coords: [8.9431, 125.5222] },
             cityhall: { name: "Butuan City Hall", coords: [8.9387, 125.5342] },
+            capitol: { name: "Provincial Capitol", coords: [8.9280, 125.5350] },
             libertad: { name: "Libertad Barangay Hall", coords: [8.9325, 125.5080] },
+            bancasi: { name: "Bancasi Airport", coords: [8.9485, 125.4850] },
+            ampayon: { name: "CSU Ampayon Campus", coords: [8.9570, 125.6012] },
+            fsuu: { name: "FSUU / Urios", coords: [8.9470, 125.5480] },
             baan: { name: "Baan Km 3 Crossing", coords: [8.9610, 125.5585] },
-            bancasi: { name: "Bancasi Airport", coords: [8.9485, 125.4850] }
+            santoNino: { name: "Santo Niño", coords: [8.9820, 125.6200] },
+            maguinda: { name: "Maguinda", coords: [8.8750, 125.6450] },
+            tungao: { name: "Tungao", coords: [8.8500, 125.4500] },
+            deOro: { name: "De Oro", coords: [8.9100, 125.6300] }
         };
 
+        // -------------------------------------------------------------
+        // OFFICIAL LPTRP ROUTES (R1 - R7) ACCORDING TO ORDINANCE 7194-2024
+        // -------------------------------------------------------------
         const ROUTES = {
             R1: {
                 id: "R1",
-                name: "Route 1 (Langihan - City Center Loop)",
+                num: 1,
+                name: "Route 1 (North Montilla - Libertad - Bancasi)",
                 shortName: "Route 1",
-                vehicle: "R1 Multicab / Orange PUJ",
+                vehicle: "R1 Multicab / PUJ",
                 color: "#EF4444",
+                desc: "North Montilla Blvd - City Proper Loop - South Montilla Blvd - J.C. Aquino Ave - Libertad - Bancasi - Crossing Dumalagan vice versa",
                 waypoints: [
                     LANDMARKS.langihan.coords,
-                    LANDMARKS.gaisano.coords,
+                    [8.9550, 125.5410],
                     LANDMARKS.guingona.coords,
                     LANDMARKS.cityhall.coords,
-                    LANDMARKS.bancasi.coords,
-                    LANDMARKS.langihan.coords
+                    LANDMARKS.libertad.coords,
+                    LANDMARKS.bancasi.coords
                 ]
             },
             R2: {
                 id: "R2",
-                name: "Route 2 (JC Aquino - Montilla Line)",
+                num: 2,
+                name: "Route 2 (JAQNO - Ampayon Line)",
                 shortName: "Route 2",
                 vehicle: "R2 Blue PUJ (Ampayon Line)",
                 color: "#3B82F6",
+                desc: "JAQNO - BCES/ANHS - A. D. Curato St - G. Flores Ave - North Montilla Blvd - Jeepney Terminal - Langihan - Rosales Ave - Libertad - Bancasi vice versa",
                 waypoints: [
                     LANDMARKS.guingona.coords,
                     LANDMARKS.robinsons.coords,
-                    [8.9520, 125.5650], // JC Aquino East
+                    [8.9520, 125.5650],
                     LANDMARKS.ampayon.coords
                 ]
             },
             R3: {
                 id: "R3",
-                name: "Route 3 (Villa Kananga - Libertad)",
+                num: 3,
+                name: "Route 3 (Ampayon - Libertad Line)",
                 shortName: "Route 3",
                 vehicle: "R3 Green PUJ (Libertad Line)",
                 color: "#10B981",
+                desc: "Libertad - JAQNO - FSUU/Plaza - Ampayon Public Market - Ampayon Triangle vice versa",
                 waypoints: [
                     LANDMARKS.libertad.coords,
                     LANDMARKS.cityhall.coords,
-                    LANDMARKS.guingona.coords
+                    LANDMARKS.guingona.coords,
+                    LANDMARKS.fsuu.coords,
+                    LANDMARKS.ampayon.coords
                 ]
             },
             R4: {
                 id: "R4",
-                name: "Route 4 (Baan - Km 3 Line)",
+                num: 4,
+                name: "Route 4 (De Oro Line)",
                 shortName: "Route 4",
-                vehicle: "R4 Purple PUJ (Baan Line)",
+                vehicle: "R4 Purple PUJ (De Oro Line)",
                 color: "#A855F7",
+                desc: "Jeepney Terminal - Rosales Ave - JAQNO - R. Calo St - T. Sanchez St - M. Calo St - Ampayon - De Oro vice versa",
                 waypoints: [
-                    LANDMARKS.baan.coords,
-                    [8.9550, 125.5490],
                     LANDMARKS.langihan.coords,
-                    LANDMARKS.guingona.coords
+                    LANDMARKS.baan.coords,
+                    LANDMARKS.ampayon.coords,
+                    LANDMARKS.deOro.coords
                 ]
             },
-            R10: {
-                id: "R10",
-                name: "Route 10 (City Tricycle Feeder)",
-                shortName: "Route 10",
-                vehicle: "Bao-Bao / Motorized Tricycle",
+            R5: {
+                id: "R5",
+                num: 5,
+                name: "Route 5 (Santo Niño Line)",
+                shortName: "Route 5",
+                vehicle: "R5 Orange PUJ (Santo Niño Line)",
                 color: "#F59E0B",
+                desc: "Jeepney Terminal - North Montilla Blvd - JAQNO - R. Calo St - T. Sanchez St - M. Calo St - Ampayon - Santo Niño vice versa",
                 waypoints: [
+                    LANDMARKS.langihan.coords,
+                    LANDMARKS.fsuu.coords,
+                    LANDMARKS.ampayon.coords,
+                    LANDMARKS.santoNino.coords
+                ]
+            },
+            R6: {
+                id: "R6",
+                num: 6,
+                name: "Route 6 (Maguinda Line)",
+                shortName: "Route 6",
+                vehicle: "R6 Yellow PUJ (Maguinda Line)",
+                color: "#EAB308",
+                desc: "Capitol Terminal - Capitol Drive - Guingona Ave - Z. Pizarro St - Montilla Blvd - Mayor Democrito D. Plaza II Ave - Mahay - Lemon - Maguinda vice versa",
+                waypoints: [
+                    LANDMARKS.capitol.coords,
                     LANDMARKS.guingona.coords,
-                    LANDMARKS.gaisano.coords,
-                    LANDMARKS.cityhall.coords
+                    [8.9300, 125.5600],
+                    LANDMARKS.maguinda.coords
+                ]
+            },
+            R7: {
+                id: "R7",
+                num: 7,
+                name: "Route 7 (Tungao Line)",
+                shortName: "Route 7",
+                vehicle: "R7 Light Green PUJ (Tungao Line)",
+                color: "#22C55E",
+                desc: "Capitol Terminal - Rosales Ave - S. Calo St - Montilla Blvd - San Vicente - Tungao vice versa",
+                waypoints: [
+                    LANDMARKS.capitol.coords,
+                    LANDMARKS.langihan.coords,
+                    [8.9000, 125.5000],
+                    LANDMARKS.tungao.coords
                 ]
             }
         };
@@ -855,14 +672,14 @@
         const routeGeometryCache = {};
 
         // -------------------------------------------------------------
-        // 2. LEAFLET INITIALIZATION (Standard OpenStreetMap Tiles)
+        // LEAFLET MAP SETUP
         // -------------------------------------------------------------
         const BUTUAN_CENTER = [8.9475, 125.5406];
         const map = L.map('map', { zoomControl: false }).setView(BUTUAN_CENTER, 14);
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -875,66 +692,64 @@
         let startMarker = null;
         let endMarker = null;
 
+        // Render Sidebar Route Legend
+        const legendListEl = document.getElementById('route-legend-list');
+        legendListEl.innerHTML = Object.values(ROUTES).map(r => `
+            <div class="md-list-item md-state" onclick="previewRoute('${r.id}')">
+                <div class="flex items-center gap-3.5 min-w-0">
+                    <span class="md-route-avatar" style="background-color: ${r.color};">${r.num}</span>
+                    <div class="min-w-0">
+                        <h4 class="text-sm font-medium">${esc(r.shortName)}</h4>
+                        <p class="text-xs truncate" style="color: var(--md-on-surface-variant);">${esc(r.desc)}</p>
+                    </div>
+                </div>
+                <i data-lucide="chevron-right" class="w-5 h-5 shrink-0" style="color: var(--md-outline);"></i>
+            </div>
+        `).join('');
+        lucide.createIcons();
+
         // -------------------------------------------------------------
-        // 3. OSRM ROUTE SNAPPING
+        // OSRM ROUTING & GEOMETRY
         // -------------------------------------------------------------
         async function fetchOSRMRoute(waypoints) {
             const coordsString = waypoints.map(wp => `${wp[1]},${wp[0]}`).join(';');
             const url = `https://router.project-osrm.org/route/v1/driving/${coordsString}?overview=full&geometries=geojson`;
-
             try {
                 const res = await fetch(url);
                 const data = await res.json();
                 if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
                     const route = data.routes[0];
-                    const latLngs = route.geometry.coordinates.map(c => [c[1], c[0]]);
                     return {
-                        coordinates: latLngs,
+                        coordinates: route.geometry.coordinates.map(c => [c[1], c[0]]),
                         distance: (route.distance / 1000).toFixed(2),
                         duration: Math.round(route.duration / 60)
                     };
                 }
             } catch (err) {
-                console.warn("OSRM routing fetch error:", err);
+                console.warn("OSRM error:", err);
             }
             return null;
         }
 
         async function loadAndDrawAllPreMadeRoutes() {
             staticRoutesGroup.clearLayers();
-
             for (const routeKey of Object.keys(ROUTES)) {
                 const route = ROUTES[routeKey];
                 let geometry = routeGeometryCache[route.id];
-
                 if (!geometry) {
                     geometry = await fetchOSRMRoute(route.waypoints);
                     if (geometry) routeGeometryCache[route.id] = geometry;
                 }
-
                 const pathCoords = geometry ? geometry.coordinates : route.waypoints;
 
-                L.polyline(pathCoords, {
-                    color: '#FAF3DD',
-                    weight: 7,
-                    opacity: 0.85,
-                    lineCap: 'round',
-                    lineJoin: 'round'
-                }).addTo(staticRoutesGroup);
-
-                const line = L.polyline(pathCoords, {
-                    color: route.color,
-                    weight: 3.5,
-                    opacity: 0.9
-                }).addTo(staticRoutesGroup);
-
+                L.polyline(pathCoords, { color: '#FAF3DD', weight: 7, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }).addTo(staticRoutesGroup);
+                const line = L.polyline(pathCoords, { color: route.color, weight: 3.5, opacity: 0.9 }).addTo(staticRoutesGroup);
                 line.bindTooltip(`<b>${route.name}</b>`, { sticky: true });
             }
         }
-
         loadAndDrawAllPreMadeRoutes();
 
-        // Render Landmark Map Markers
+        // Render Landmark Markers with Labels
         Object.entries(LANDMARKS).forEach(([key, lm]) => {
             const landmarkIcon = L.divIcon({
                 className: 'custom-landmark-pin',
@@ -946,7 +761,7 @@
         });
 
         // -------------------------------------------------------------
-        // 4. LOCATION SELECTION & MOBILE DRAWER LOGIC
+        // UI & INTERACTION LOGIC
         // -------------------------------------------------------------
         const sidebar = document.getElementById('sidebar');
         const drawerOverlay = document.getElementById('drawer-overlay');
@@ -967,55 +782,37 @@
             }
         }
 
-        toggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleMobileDrawer();
-        });
-
-        drawerHeader.addEventListener('click', (e) => {
-            if (window.innerWidth < 768) {
-                toggleMobileDrawer();
-            }
-        });
-
-        drawerOverlay.addEventListener('click', () => {
-            toggleMobileDrawer(false);
-        });
+        toggleBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMobileDrawer(); });
+        drawerHeader.addEventListener('click', () => { if (window.innerWidth < 768) toggleMobileDrawer(); });
+        drawerOverlay.addEventListener('click', () => toggleMobileDrawer(false));
 
         function setUserLocation(lat, lng, label = "Selected Location") {
             userLocation = [lat, lng];
-
             if (startMarker) map.removeLayer(startMarker);
-
             const userIcon = L.divIcon({
                 className: 'user-pin-wrapper',
                 html: `<div class="user-location-marker"></div>`,
                 iconSize: [22, 22],
                 iconAnchor: [11, 11]
             });
-
             startMarker = L.marker(userLocation, { icon: userIcon }).addTo(map);
-            startMarker.bindPopup(`<b>Start Point:</b> ${esc(label)}`).openPopup();
+            startMarker.bindPopup(`<b>Start:</b> ${esc(label)}`).openPopup();
             document.getElementById('origin-mode-badge').innerText = label;
         }
-
         setUserLocation(8.9475, 125.5406, "Default City Center");
 
-        // Geolocation Button
         document.getElementById('locate-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
-                        const { latitude, longitude } = pos.coords;
-                        setUserLocation(latitude, longitude, "My GPS Location");
-                        // back to "tap the map" mode
+                        setUserLocation(pos.coords.latitude, pos.coords.longitude, "My GPS Location");
                         document.getElementById('origin-select').value = 'gps';
                         document.getElementById('origin-input').value = '';
                         document.getElementById('origin-clear').classList.add('hidden');
-                        map.flyTo([latitude, longitude], 15);
+                        map.flyTo([pos.coords.latitude, pos.coords.longitude], 15);
                     },
-                    () => alert("GPS detection failed or permission denied. Tap anywhere on the map to set your location.")
+                    () => alert("GPS detection failed. Tap map to set location.")
                 );
             }
         });
@@ -1026,16 +823,9 @@
             }
         });
 
-        // -------------------------------------------------------------
-        // 4b. PLACE SEARCH (OpenStreetMap Nominatim)
-        // -------------------------------------------------------------
-        // Results are limited to the Butuan area: left,top,right,bottom
-        const SEARCH_VIEWBOX = '125.40,9.10,125.70,8.80';
+        // Search Autocomplete helper
         let selectedDest = null;
-
-        function esc(str) {
-            return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-        }
+        function esc(str) { return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
         function createPlaceSearch({ input, menu, clearBtn, leadingItems = [], onPick, onClear, onType }) {
             const wrap = input.closest('.md-field');
@@ -1046,243 +836,85 @@
             function close() {
                 clearTimeout(debounceTimer);
                 if (controller) controller.abort();
-                remote = { state: 'idle', items: [] };
                 menu.classList.add('hidden');
                 menu.innerHTML = '';
             }
 
             function addHeader(text) {
-                const h = document.createElement('div');
-                h.className = 'md-menu-header';
-                h.textContent = text;
-                menu.appendChild(h);
+                const h = document.createElement('div'); h.className = 'md-menu-header'; h.textContent = text; menu.appendChild(h);
             }
-
             function addNote(text) {
-                const n = document.createElement('div');
-                n.className = 'md-menu-note';
-                n.textContent = text;
-                menu.appendChild(n);
+                const n = document.createElement('div'); n.className = 'md-menu-note'; n.textContent = text; menu.appendChild(n);
             }
-
             function addItem({ icon, title, sub, pick }) {
                 const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'md-menu-item md-state';
-
-                const ico = document.createElement('span');
-                ico.className = 'md-menu-ico';
-                const i = document.createElement('i');
-                i.setAttribute('data-lucide', icon);
-                i.className = 'w-4 h-4';
-                ico.appendChild(i);
-
-                const txt = document.createElement('span');
-                txt.className = 'min-w-0 flex-1';
-                const t = document.createElement('span');
-                t.className = 'md-menu-title';
-                t.textContent = title;
-                txt.appendChild(t);
-                if (sub) {
-                    const s = document.createElement('span');
-                    s.className = 'md-menu-sub';
-                    s.textContent = sub;
-                    txt.appendChild(s);
-                }
-
-                btn.append(ico, txt);
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    pick();
-                    close();
-                });
+                btn.type = 'button'; btn.className = 'md-menu-item md-state';
+                btn.innerHTML = `<span class="md-menu-ico"><i data-lucide="${icon}" class="w-4 h-4"></i></span><span class="min-w-0 flex-1"><span class="md-menu-title">${esc(title)}</span>${sub ? `<span class="md-menu-sub">${esc(sub)}</span>` : ''}</span>`;
+                btn.addEventListener('click', (e) => { e.stopPropagation(); pick(); close(); });
                 menu.appendChild(btn);
             }
 
             function pickPlace(name, coords) {
-                input.value = name;
-                clearBtn.classList.remove('hidden');
-                onPick({ name, coords });
+                input.value = name; clearBtn.classList.remove('hidden'); onPick({ name, coords });
             }
 
             function render() {
-                const q = input.value.trim();
-                const ql = q.toLowerCase();
+                const q = input.value.trim().toLowerCase();
                 menu.innerHTML = '';
-
                 if (!q) {
-                    leadingItems.forEach(it => addItem({
-                        icon: it.icon, title: it.title, sub: it.sub,
-                        pick: () => {
-                            input.value = '';
-                            clearBtn.classList.add('hidden');
-                            it.pick();
-                        }
-                    }));
+                    leadingItems.forEach(it => addItem({ icon: it.icon, title: it.title, sub: it.sub, pick: () => { input.value = ''; clearBtn.classList.add('hidden'); it.pick(); } }));
                 }
-
-                const local = Object.values(LANDMARKS).filter(lm => !ql || lm.name.toLowerCase().includes(ql));
+                const local = Object.values(LANDMARKS).filter(lm => !q || lm.name.toLowerCase().includes(q));
                 if (local.length) {
-                    addHeader('Landmarks');
-                    local.forEach(lm => addItem({
-                        icon: 'landmark', title: lm.name, sub: 'Butuan City landmark',
-                        pick: () => pickPlace(lm.name, lm.coords)
-                    }));
+                    addHeader('LPTRP Landmarks & Terminals');
+                    local.forEach(lm => addItem({ icon: 'landmark', title: lm.name, sub: 'Butuan Landmark', pick: () => pickPlace(lm.name, lm.coords) }));
                 }
-
-                if (q.length > 0 && q.length < 3) {
-                    addNote('Keep typing to search OpenStreetMap…');
-                } else if (q.length >= 3 && remote.state !== 'idle') {
-                    addHeader('OpenStreetMap results');
-                    if (remote.state === 'loading') {
-                        addNote('Searching…');
-                    } else if (remote.state === 'error') {
-                        addNote("Couldn't reach OpenStreetMap search. Please try again.");
-                    } else if (remote.items.length === 0) {
-                        addNote('No places found around Butuan.');
-                    } else {
-                        remote.items.forEach(r => addItem({
-                            icon: 'map-pin', title: r.name, sub: r.full,
-                            pick: () => pickPlace(r.name, r.coords)
-                        }));
-                    }
-                }
-
                 menu.classList.remove('hidden');
                 lucide.createIcons();
-                menu.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-            }
-
-            async function search(q) {
-                controller = new AbortController();
-                const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&countrycodes=ph&viewbox=${SEARCH_VIEWBOX}&bounded=1&q=${encodeURIComponent(q)}`;
-                try {
-                    const res = await fetch(url, { signal: controller.signal, headers: { 'Accept-Language': 'en' } });
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    const data = await res.json();
-                    remote = {
-                        state: 'done',
-                        items: data.map(r => ({
-                            name: (r.name || r.display_name.split(',')[0]).trim(),
-                            full: r.display_name,
-                            coords: [parseFloat(r.lat), parseFloat(r.lon)]
-                        }))
-                    };
-                } catch (err) {
-                    if (err.name === 'AbortError') return;
-                    console.warn('Nominatim search error:', err);
-                    remote = { state: 'error', items: [] };
-                }
-                if (!menu.classList.contains('hidden') && input.value.trim() === q) render();
             }
 
             input.addEventListener('input', () => {
-                const q = input.value.trim();
                 clearBtn.classList.toggle('hidden', !input.value);
                 if (onType) onType(input.value);
-                clearTimeout(debounceTimer);
-                if (controller) controller.abort();
-                if (q.length >= 3) {
-                    remote = { state: 'loading', items: [] };
-                    debounceTimer = setTimeout(() => search(q), 700); // be kind to the free Nominatim service
-                } else {
-                    remote = { state: 'idle', items: [] };
-                }
                 render();
             });
-
-            input.addEventListener('focus', () => {
-                input.select();
-                render();
-            });
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    close();
-                } else if (e.key === 'Enter') {
-                    const first = menu.querySelector('.md-menu-item');
-                    if (first) {
-                        e.preventDefault();
-                        first.click();
-                    }
-                }
-            });
-
+            input.addEventListener('focus', () => { input.select(); render(); });
             clearBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                input.value = '';
-                clearBtn.classList.add('hidden');
-                if (onClear) onClear();
-                input.focus();
-                render();
+                e.stopPropagation(); input.value = ''; clearBtn.classList.add('hidden'); if (onClear) onClear(); input.focus(); render();
             });
-
-            document.addEventListener('click', (e) => {
-                if (!wrap.contains(e.target) && !menu.contains(e.target)) close();
-            });
+            document.addEventListener('click', (e) => { if (!wrap.contains(e.target) && !menu.contains(e.target)) close(); });
         }
 
-        // Origin: search a place, or leave empty and tap the map / use GPS
-        const originMode = document.getElementById('origin-select'); // hidden: 'gps' (tap map) or 'place' (searched)
+        const originMode = document.getElementById('origin-select');
         createPlaceSearch({
             input: document.getElementById('origin-input'),
             menu: document.getElementById('origin-menu'),
             clearBtn: document.getElementById('origin-clear'),
-            leadingItems: [{
-                icon: 'crosshair',
-                title: 'Pinned map location',
-                sub: 'Tap the map to set your starting point',
-                pick: () => { originMode.value = 'gps'; }
-            }],
-            onPick: ({ name, coords }) => {
-                originMode.value = 'place';
-                setUserLocation(coords[0], coords[1], name);
-                map.panTo(coords);
-            },
-            onClear: () => { originMode.value = 'gps'; },
-            onType: (v) => { if (!v.trim()) originMode.value = 'gps'; }
+            leadingItems: [{ icon: 'crosshair', title: 'Pinned map location', sub: 'Tap map to set start point', pick: () => { originMode.value = 'gps'; } }],
+            onPick: ({ name, coords }) => { originMode.value = 'place'; setUserLocation(coords[0], coords[1], name); map.panTo(coords); },
+            onClear: () => { originMode.value = 'gps'; }
         });
 
-        // Destination
         createPlaceSearch({
             input: document.getElementById('destination-input'),
             menu: document.getElementById('destination-menu'),
             clearBtn: document.getElementById('destination-clear'),
             onPick: ({ name, coords }) => { selectedDest = { name, coords }; },
-            onClear: () => { selectedDest = null; },
-            onType: (v) => { if (selectedDest && v !== selectedDest.name) selectedDest = null; }
+            onClear: () => { selectedDest = null; }
         });
 
-        // -------------------------------------------------------------
-        // 5. ROUTING & COMMUTE CALCULATIONS
-        // -------------------------------------------------------------
+        // Routing calculation logic
         function getDistance(c1, c2) {
             const R = 6371;
             const dLat = (c2[0] - c1[0]) * Math.PI / 180;
             const dLon = (c2[1] - c1[1]) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(c1[0] * Math.PI / 180) * Math.cos(c2[0] * Math.PI / 180) * 
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const a = Math.sin(dLat/2)**2 + Math.cos(c1[0]*Math.PI/180)*Math.cos(c2[0]*Math.PI/180)*Math.sin(dLon/2)**2;
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
-        function getMinDistanceToRoute(point, route) {
-            let minDistance = Infinity;
-            route.waypoints.forEach(wp => {
-                const d = getDistance(point, wp);
-                if (d < minDistance) minDistance = d;
-            });
-            return minDistance;
-        }
-
         document.getElementById('find-route-btn').addEventListener('click', async () => {
-            if (!selectedDest) {
-                alert("Please search for and select a destination!");
-                return;
-            }
-
-            const destLandmark = selectedDest;
-            const destCoords = destLandmark.coords;
+            if (!selectedDest) { alert("Please select a destination!"); return; }
+            const destCoords = selectedDest.coords;
 
             document.getElementById('loading-indicator').classList.remove('hidden');
             document.getElementById('route-output').classList.add('hidden');
@@ -1291,82 +923,52 @@
             const destIcon = L.divIcon({
                 className: 'dest-pin-wrapper',
                 html: `<div style="background:#68B0AB; color:#0B2B2A; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:9999px; border:3px solid #FAF3DD; box-shadow:0 3px 10px rgba(42,45,56,0.35);"><i data-lucide="map-pin" class="w-4 h-4"></i></div>`,
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
+                iconSize: [36, 36], iconAnchor: [18, 18]
             });
             endMarker = L.marker(destCoords, { icon: destIcon }).addTo(map);
-            endMarker.bindPopup(`<b>Destination:</b> ${esc(destLandmark.name)}`).openPopup();
+            endMarker.bindPopup(`<b>Destination:</b> ${esc(selectedDest.name)}`).openPopup();
 
             const snappedResult = await fetchOSRMRoute([userLocation, destCoords]);
-
             const routesList = Object.values(ROUTES);
             let matchedRoute = routesList[0];
             let minScore = Infinity;
 
             routesList.forEach(r => {
-                const sDist = getMinDistanceToRoute(userLocation, r);
-                const dDist = getMinDistanceToRoute(destCoords, r);
-                if (sDist + dDist < minScore) {
-                    minScore = sDist + dDist;
-                    matchedRoute = r;
-                }
+                let sDist = Math.min(...r.waypoints.map(wp => getDistance(userLocation, wp)));
+                let dDist = Math.min(...r.waypoints.map(wp => getDistance(destCoords, wp)));
+                if (sDist + dDist < minScore) { minScore = sDist + dDist; matchedRoute = r; }
             });
 
             activeHighlightGroup.clearLayers();
-
             if (snappedResult) {
-                L.polyline(snappedResult.coordinates, {
-                    color: '#2A2D38',
-                    weight: 9,
-                    opacity: 0.85,
-                    lineCap: 'round',
-                    lineJoin: 'round'
-                }).addTo(activeHighlightGroup);
-
-                const activePolyline = L.polyline(snappedResult.coordinates, {
-                    color: matchedRoute.color,
-                    weight: 5,
-                    opacity: 0.95,
-                    lineCap: 'round',
-                    lineJoin: 'round'
-                }).addTo(activeHighlightGroup);
-
+                L.polyline(snappedResult.coordinates, { color: '#2A2D38', weight: 9, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }).addTo(activeHighlightGroup);
+                const activePolyline = L.polyline(snappedResult.coordinates, { color: matchedRoute.color, weight: 5, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }).addTo(activeHighlightGroup);
                 map.fitBounds(activePolyline.getBounds(), { padding: [50, 50] });
 
                 document.getElementById('dist-val').innerText = `${snappedResult.distance} km`;
                 document.getElementById('time-val').innerText = `${snappedResult.duration} mins`;
             }
 
-            const stepsContainer = document.getElementById('instructions-container');
-            const isDirect = minScore < 3.0;
-
-            document.getElementById('transfers-badge').innerText = isDirect ? "Direct PUJ Line" : "Transfer / Tricycle";
-            document.getElementById('transfers-badge').className = isDirect 
-                ? "md-badge md-badge--ok"
-                : "md-badge md-badge--warn";
-
-            stepsContainer.innerHTML = `
+            document.getElementById('instructions-container').innerHTML = `
                 <div class="md-step">
                     <div class="md-step-num" style="background: var(--md-primary); color: var(--md-on-primary);">1</div>
-                    <div class="text-xs" style="color: var(--md-on-surface);">
-                        <span class="text-sm font-medium block mb-0.5">Walk to nearest pickup node</span>
-                        <p style="color: var(--md-on-surface-variant);">Walk to nearest loading area along the street towards <b>${matchedRoute.shortName}</b> line.</p>
+                    <div class="text-xs">
+                        <span class="text-sm font-medium block mb-0.5">Walk to nearest LPTRP stop</span>
+                        <p style="color: var(--md-on-surface-variant);">Head to the nearest loading station for <b>${esc(matchedRoute.name)}</b>.</p>
                     </div>
                 </div>
-
                 <div class="md-step">
-                    <div class="md-step-num" style="background-color: ${matchedRoute.color}; color: var(--md-on-surface);">2</div>
-                    <div class="text-xs" style="color: var(--md-on-surface);">
-                        <span class="text-sm font-medium block mb-0.5">Board ${matchedRoute.vehicle}</span>
-                        <p style="color: var(--md-on-surface-variant);">Ride along road path towards <b>${esc(destLandmark.name)}</b>.</p>
+                    <div class="md-step-num" style="background-color: ${matchedRoute.color}; color: white;">${matchedRoute.num}</div>
+                    <div class="text-xs">
+                        <span class="text-sm font-medium block mb-0.5">Board ${esc(matchedRoute.vehicle)}</span>
+                        <p style="color: var(--md-on-surface-variant);">Take ${esc(matchedRoute.shortName)} following ordinance route.</p>
                     </div>
                 </div>
-
                 <div class="md-step">
                     <div class="md-step-num" style="background: var(--md-outline); color: var(--md-surface);">3</div>
-                    <div class="text-xs" style="color: var(--md-on-surface);">
-                        <span class="text-sm font-medium block mb-0.5">Alight at Destination</span>
-                        <p style="color: var(--md-on-surface-variant);">Disembark at <b>${esc(destLandmark.name)}</b> stop point.</p>
+                    <div class="text-xs">
+                        <span class="text-sm font-medium block mb-0.5">Arrive at Destination</span>
+                        <p style="color: var(--md-on-surface-variant);">Alight at <b>${esc(selectedDest.name)}</b>.</p>
                     </div>
                 </div>
             `;
@@ -1374,17 +976,12 @@
             document.getElementById('loading-indicator').classList.add('hidden');
             document.getElementById('route-output').classList.remove('hidden');
             lucide.createIcons();
-
-            // Collapse drawer on mobile after snapped route selection so user can see map
-            if (window.innerWidth < 768) {
-                toggleMobileDrawer(false);
-            }
+            if (window.innerWidth < 768) toggleMobileDrawer(false);
         });
 
         async function previewRoute(routeId) {
             const route = ROUTES[routeId];
             if (!route) return;
-
             document.getElementById('loading-indicator').classList.remove('hidden');
 
             let geometry = routeGeometryCache[route.id];
@@ -1395,20 +992,11 @@
 
             activeHighlightGroup.clearLayers();
             const coords = geometry ? geometry.coordinates : route.waypoints;
-
-            const previewLine = L.polyline(coords, {
-                color: route.color,
-                weight: 6,
-                opacity: 0.95
-            }).addTo(activeHighlightGroup);
-
+            const previewLine = L.polyline(coords, { color: route.color, weight: 6, opacity: 0.95 }).addTo(activeHighlightGroup);
             map.fitBounds(previewLine.getBounds(), { padding: [50, 50] });
 
             document.getElementById('loading-indicator').classList.add('hidden');
-
-            if (window.innerWidth < 768) {
-                toggleMobileDrawer(false);
-            }
+            if (window.innerWidth < 768) toggleMobileDrawer(false);
         }
 
         document.getElementById('reset-map-btn').addEventListener('click', () => {
