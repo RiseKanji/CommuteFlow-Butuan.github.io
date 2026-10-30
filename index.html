@@ -487,7 +487,12 @@
                         <i data-lucide="sparkles" class="w-4 h-4"></i>
                         Commute Recommendations
                     </h2>
-                    <span id="transfers-badge" class="md-badge md-badge--ok">Direct Route</span>
+                    <div class="flex items-center gap-2">
+                        <span id="transfers-badge" class="md-badge md-badge--ok">Direct Route</span>
+                        <button id="cancel-route-btn" title="Cancel Route" class="px-2.5 py-1 text-xs font-medium rounded-lg border border-red-300 text-red-600 hover:bg-red-50 flex items-center gap-1 cursor-pointer">
+                            <i data-lucide="x" class="w-3.5 h-3.5"></i> Cancel
+                        </button>
+                    </div>
                 </div>
 
                 <div class="md-stats grid grid-cols-2 text-center">
@@ -549,13 +554,14 @@
             capitol: { name: "Provincial Capitol", coords: [8.940422798536666, 125.53383997022637], hub: true },
             libertad: { name: "Libertad Barangay Hall", coords: [8.94935409608516, 125.5083788101281] },
             bancasi: { name: "Bancasi Airport", coords: [8.948365923809346, 125.48116463935851] },
+            dumalagan: { name: "Dumalagan Crossing", coords: [8.9470, 125.4720] },
             ampayon: { name: "CSU Ampayon Campus", coords: [8.95742539512112, 125.5974320963977], hub: true },
+            santoNino: { name: "Santo Niño / Los Angeles", coords: [9.014089923167456, 125.6063203505433] },
             fsuu: { name: "FSUU / Urios", coords: [8.947951543269495, 125.54205008273482] },
             baan: { name: "Baan Viaduct", coords: [8.951291310947138, 125.55227816602414] },
             nissan: { name: "Nissan", coords: [8.953694695426416, 125.56403180739079] },
             tiniwisan: { name: "Tiniwisan Crossing", coords: [8.957085825190946, 125.58212786654022] },
             bmc: { name: "Butuan Medical Center", coords: [8.961898485747366, 125.586110596398] },
-            santoNino: { name: "Santo Niño", coords: [8.943655675554169, 125.50538717325709] },
             maguinda: { name: "Maguinda", coords: [8.8750, 125.6450] },
             tungao: { name: "Tungao", coords: [8.8500, 125.4500] },
             deOro: { name: "De Oro", coords: [8.9100, 125.6300] }
@@ -569,41 +575,57 @@
         ];
 
         // -------------------------------------------------------------
-        // OFFICIAL LPTRP ROUTES (R1 - R7)
+        // OFFICIAL LPTRP ROUTES (R1 - R7) ACCORDING TO ORDINANCE 7194-2024
         // -------------------------------------------------------------
         const ROUTES = {
             R1: {
-                id: "R1", num: 1, name: "Route 1 (North Montilla - Libertad - Bancasi)", shortName: "Route 1", vehicle: "R1 Multicab / PUJ", color: "#EF4444",
-                desc: "North Montilla Blvd - City Proper Loop - South Montilla Blvd - J.C. Aquino Ave - Libertad - Bancasi - Crossing Dumalagan vice versa",
-                waypoints: [LANDMARKS.langihan.coords, [8.9550, 125.5410], LANDMARKS.guingona.coords, LANDMARKS.cityhall.coords, LANDMARKS.libertad.coords, LANDMARKS.bancasi.coords]
+                id: "R1", num: 1, name: "Route 1 (North Montilla - Libertad - Bancasi Loop)", shortName: "Route 1", vehicle: "R1 Multicab / Red PUJ", color: "#EF4444",
+                desc: "North Montilla Blvd - City Proper Loop - South Montilla Blvd - J.C. Aquino Ave - Libertad - Bancasi - Dumalagan Crossing vice versa",
+                waypoints: [
+                    LANDMARKS.langihan.coords,
+                    [8.9530, 125.5410],
+                    LANDMARKS.guingona.coords,
+                    LANDMARKS.cityhall.coords,
+                    LANDMARKS.robinsons.coords,
+                    LANDMARKS.libertad.coords,
+                    LANDMARKS.bancasi.coords,
+                    LANDMARKS.dumalagan.coords
+                ]
             },
             R2: {
-                id: "R2", num: 2, name: "Route 2 (JAQNO - Ampayon Line)", shortName: "Route 2", vehicle: "R2 Blue PUJ (Ampayon Line)", color: "#3B82F6",
-                desc: "JAQNO - BCES/ANHS - A. D. Curato St - G. Flores Ave - North Montilla Blvd - Jeepney Terminal - Langihan - Rosales Ave - Libertad - Bancasi vice versa",
-                waypoints: [LANDMARKS.guingona.coords, LANDMARKS.robinsons.coords, ...STRAIGHT_HIGHWAY_EAST]
+                id: "R2", num: 2, name: "Route 2 (JAQNO - Montilla - Libertad Loop)", shortName: "Route 2", vehicle: "R2 Blue PUJ", color: "#3B82F6",
+                desc: "JAQNO - BCES/ANHS - A. D. Curato St - G. Flores Ave - North Montilla Blvd - Jeepney Terminal - Langihan - Rosales Ave - Libertad - Dumalagan Crossing vice versa",
+                waypoints: [
+                    LANDMARKS.guingona.coords,
+                    LANDMARKS.langihan.coords,
+                    LANDMARKS.robinsons.coords,
+                    LANDMARKS.libertad.coords,
+                    LANDMARKS.bancasi.coords,
+                    LANDMARKS.dumalagan.coords
+                ]
             },
             R3: {
-                id: "R3", num: 3, name: "Route 3 (Ampayon - Libertad Line)", shortName: "Route 3", vehicle: "R3 Green PUJ (Libertad Line)", color: "#10B981",
+                id: "R3", num: 3, name: "Route 3 (Ampayon - Libertad Line)", shortName: "Route 3", vehicle: "R3 Green PUJ (Ampayon-Libertad)", color: "#10B981",
                 desc: "Libertad - JAQNO - FSUU/Plaza - Ampayon Public Market - Ampayon Triangle vice versa",
                 waypoints: [LANDMARKS.libertad.coords, LANDMARKS.cityhall.coords, LANDMARKS.guingona.coords, LANDMARKS.fsuu.coords, ...STRAIGHT_HIGHWAY_EAST]
             },
             R4: {
-                id: "R4", num: 4, name: "Route 4 (De Oro Line)", shortName: "Route 4", vehicle: "R4 Purple PUJ (De Oro Line)", color: "#A855F7",
+                id: "R4", num: 4, name: "Route 4 (De Oro Line)", shortName: "Route 4", vehicle: "R4 Purple PUJ (De Oro)", color: "#A855F7",
                 desc: "Jeepney Terminal - Rosales Ave - JAQNO - R. Calo St - T. Sanchez St - M. Calo St - Ampayon - De Oro vice versa",
                 waypoints: [LANDMARKS.langihan.coords, ...STRAIGHT_HIGHWAY_EAST, LANDMARKS.deOro.coords]
             },
             R5: {
-                id: "R5", num: 5, name: "Route 5 (Santo Niño Line)", shortName: "Route 5", vehicle: "R5 Orange PUJ (Santo Niño Line)", color: "#F59E0B",
-                desc: "Jeepney Terminal - North Montilla Blvd - JAQNO - R. Calo St - T. Sanchez St - M. Calo St - Ampayon - Santo Niño vice versa",
+                id: "R5", num: 5, name: "Route 5 (Santo Niño / Los Angeles Line)", shortName: "Route 5", vehicle: "R5 Orange PUJ (Santo Niño/Los Angeles)", color: "#F59E0B",
+                desc: "Jeepney Terminal - North Montilla Blvd - JAQNO - R. Calo St - T. Sanchez St - M. Calo St - Ampayon - Santo Niño - Los Angeles vice versa",
                 waypoints: [LANDMARKS.langihan.coords, LANDMARKS.fsuu.coords, ...STRAIGHT_HIGHWAY_EAST, LANDMARKS.santoNino.coords]
             },
             R6: {
-                id: "R6", num: 6, name: "Route 6 (Maguinda Line)", shortName: "Route 6", vehicle: "R6 Yellow PUJ (Maguinda Line)", color: "#EAB308",
+                id: "R6", num: 6, name: "Route 6 (Maguinda Line)", shortName: "Route 6", vehicle: "R6 Yellow PUJ (Maguinda)", color: "#EAB308",
                 desc: "Capitol Terminal - Capitol Drive - Guingona Ave - Z. Pizarro St - Montilla Blvd - Mayor Democrito D. Plaza II Ave - Mahay - Lemon - Maguinda vice versa",
                 waypoints: [LANDMARKS.capitol.coords, LANDMARKS.guingona.coords, [8.9300, 125.5600], LANDMARKS.maguinda.coords]
             },
             R7: {
-                id: "R7", num: 7, name: "Route 7 (Tungao Line)", shortName: "Route 7", vehicle: "R7 Light Green PUJ (Tungao Line)", color: "#22C55E",
+                id: "R7", num: 7, name: "Route 7 (Tungao Line)", shortName: "Route 7", vehicle: "R7 Light Green PUJ (Tungao)", color: "#22C55E",
                 desc: "Capitol Terminal - Rosales Ave - S. Calo St - Montilla Blvd - San Vicente - Tungao vice versa",
                 waypoints: [LANDMARKS.capitol.coords, LANDMARKS.langihan.coords, [8.9000, 125.5000], LANDMARKS.tungao.coords]
             }
@@ -1001,7 +1023,7 @@
                         <div class="md-step-num" style="background: #F59E0B; color: white;">🚶</div>
                         <div class="text-xs">
                             <span class="text-sm font-medium block mb-0.5">Feeder / Walk to Route</span>
-                            <p style="color: var(--md-on-surface-variant);">Head to the nearest pickup point for <b>${esc(bestRouteA.name)}</b> (dashed amber line).</p>
+                            <p style="color: var(--md-on-surface-variant);">Head to nearest pickup point for <b>${esc(bestRouteA.name)}</b> (dashed amber line).</p>
                         </div>
                     </div>` : ''}
                     <div class="md-step">
@@ -1068,6 +1090,19 @@
             document.getElementById('route-output').classList.remove('hidden');
             lucide.createIcons();
             if (window.innerWidth < 768) toggleMobileDrawer(false);
+        });
+
+        // -------------------------------------------------------------
+        // CANCEL / CLEAR ROUTE
+        // -------------------------------------------------------------
+        document.getElementById('cancel-route-btn').addEventListener('click', () => {
+            activeHighlightGroup.clearLayers();
+            if (endMarker) { map.removeLayer(endMarker); endMarker = null; }
+            document.getElementById('route-output').classList.add('hidden');
+            document.getElementById('destination-input').value = '';
+            selectedDest = null;
+            document.getElementById('destination-clear').classList.add('hidden');
+            map.flyTo(BUTUAN_CENTER, 14);
         });
 
         async function previewRoute(routeId) {
