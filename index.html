@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CommuteFlow Butuan - Mobile Transit Navigator</title>
+    <title>CommuteFlow Butuan - Mobile Transit Navigator (MD3)</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,6 +12,11 @@
             theme: {
                 extend: {
                     colors: {
+                        eggshell: '#FAF3DD',
+                        teaGreen: '#C8D5B9',
+                        mutedTeal: '#8FC0A9',
+                        tropicalTeal: '#68B0AB',
+                        blueSlate: '#696D7D',
                         r1: '#EF4444',
                         r2: '#3B82F6',
                         r3: '#10B981',
@@ -45,6 +50,8 @@
             padding: 0;
             overflow: hidden;
             position: fixed;
+            background-color: #1A1C23;
+            color: #FAF3DD;
         }
         #map {
             height: 100%;
@@ -52,31 +59,31 @@
             z-index: 1;
         }
         ::-webkit-scrollbar {
-            width: 5px;
+            width: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(105, 109, 125, 0.2);
         }
         ::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: #696D7D;
             border-radius: 9999px;
         }
         .user-location-marker {
-            width: 20px;
-            height: 20px;
-            background-color: #3b82f6;
-            border: 3px solid white;
+            width: 22px;
+            height: 22px;
+            background-color: #68B0AB;
+            border: 3px solid #FAF3DD;
             border-radius: 50%;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+            box-shadow: 0 0 16px rgba(104, 176, 171, 0.9);
             animation: pulse-ring 2s infinite;
         }
         @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-            70% { box-shadow: 0 0 0 14px rgba(59, 130, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(104, 176, 171, 0.8); }
+            70% { box-shadow: 0 0 0 16px rgba(104, 176, 171, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(104, 176, 171, 0); }
         }
 
-        /* Mobile Drawer Transformations */
+        /* Material Design 3 Bottom Sheet / Drawer Transformations */
         @media (max-width: 767px) {
             #sidebar {
                 position: fixed;
@@ -87,10 +94,11 @@
                 width: 100%;
                 max-height: 85vh;
                 height: auto;
-                border-radius: 1.5rem 1.5rem 0 0;
-                transform: translateY(calc(100% - 72px));
+                border-radius: 2rem 2rem 0 0;
+                transform: translateY(calc(100% - 76px));
                 transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
                 z-index: 40;
+                box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.4);
             }
             #sidebar.drawer-open {
                 transform: translateY(0%);
@@ -101,57 +109,57 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 antialiased flex flex-col md:flex-row h-full w-full relative select-none">
+<body class="bg-[#1A1C23] text-[#FAF3DD] antialiased flex flex-col md:flex-row h-full w-full relative select-none">
 
     <!-- Mobile Drawer Overlay Background -->
-    <div id="drawer-overlay" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
+    <div id="drawer-overlay" class="fixed inset-0 bg-[#1A1C23]/70 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
 
-    <!-- Sidebar / Responsive Bottom Sheet -->
-    <div id="sidebar" class="bg-slate-900 text-slate-100 flex flex-col shadow-2xl border-r border-t md:border-t-0 border-slate-800/80 w-full md:w-[420px] md:relative md:translate-y-0 md:h-full">
+    <!-- Sidebar / MD3 Bottom Sheet -->
+    <div id="sidebar" class="bg-[#242730] text-[#FAF3DD] flex flex-col shadow-2xl border-r border-t md:border-t-0 border-[#696D7D]/30 w-full md:w-[440px] md:relative md:translate-y-0 md:h-full md:rounded-none rounded-t-[28px]">
         
         <!-- Mobile Pull Handle & Header -->
-        <div id="drawer-header" class="p-4 md:p-5 border-b border-slate-800/80 flex flex-col shrink-0 cursor-pointer md:cursor-default">
+        <div id="drawer-header" class="p-4 md:p-6 border-b border-[#696D7D]/30 flex flex-col shrink-0 cursor-pointer md:cursor-default">
             
-            <!-- Mobile Grab Bar Indicator -->
-            <div class="w-12 h-1.5 bg-slate-700 rounded-full self-center mb-3 md:hidden"></div>
+            <!-- MD3 Grab Bar Indicator -->
+            <div class="w-12 h-1.5 bg-[#696D7D] rounded-full self-center mb-3 md:hidden opacity-80"></div>
 
             <div class="flex justify-between items-center w-full">
-                <div class="flex items-center gap-3">
-                    <div class="p-2.5 bg-gradient-to-tr from-indigo-600 to-indigo-500 rounded-2xl shadow-lg shadow-indigo-500/30 flex items-center justify-center">
-                        <i data-lucide="bus" class="w-6 h-6 text-white"></i>
+                <div class="flex items-center gap-3.5">
+                    <div class="p-3 bg-gradient-to-tr from-[#68B0AB] to-[#8FC0A9] rounded-2xl shadow-lg shadow-[#68B0AB]/30 flex items-center justify-center">
+                        <i data-lucide="bus" class="w-6 h-6 text-[#1A1C23]"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h1 class="font-extrabold text-lg md:text-xl tracking-tight text-white">CommuteFlow</h1>
-                            <span class="px-2 py-0.5 text-[10px] font-bold bg-indigo-500/20 text-indigo-300 rounded-full border border-indigo-500/30">BXU</span>
+                            <h1 class="font-extrabold text-lg md:text-xl tracking-tight text-[#FAF3DD]">CommuteFlow</h1>
+                            <span class="px-2.5 py-0.5 text-[10px] font-bold bg-[#8FC0A9]/20 text-[#8FC0A9] rounded-full border border-[#8FC0A9]/40">BXU</span>
                         </div>
-                        <p class="text-xs text-slate-400 font-medium">Butuan PUJ / Tricycle Road Navigator</p>
+                        <p class="text-xs text-[#C8D5B9] font-medium opacity-90">Butuan PUJ / Tricycle Road Navigator</p>
                     </div>
                 </div>
 
                 <!-- Toggle Button (Mobile) -->
-                <button id="toggle-drawer-btn" class="md:hidden p-3 min-w-[44px] min-h-[44px] bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl flex items-center justify-center transition border border-slate-700">
+                <button id="toggle-drawer-btn" class="md:hidden p-3 min-w-[44px] min-h-[44px] bg-[#696D7D]/30 hover:bg-[#696D7D]/50 text-[#FAF3DD] rounded-2xl flex items-center justify-center transition border border-[#696D7D]/40">
                     <i id="toggle-icon" data-lucide="chevron-up" class="w-5 h-5 transition-transform duration-300"></i>
                 </button>
             </div>
         </div>
 
         <!-- Scrollable Controls Container -->
-        <div class="p-4 md:p-5 overflow-y-auto space-y-5 flex-1 max-h-[calc(85vh-72px)] md:max-h-none">
+        <div class="p-4 md:p-6 overflow-y-auto space-y-5 flex-1 max-h-[calc(85vh-76px)] md:max-h-none">
             
             <!-- Origin & Destination Selector -->
-            <div class="bg-slate-800/60 p-4 rounded-2xl border border-slate-700/60 space-y-3 shadow-inner">
+            <div class="bg-[#696D7D]/25 p-4 md:p-5 rounded-[24px] border border-[#696D7D]/40 space-y-3.5 shadow-sm backdrop-blur-md">
                 
                 <!-- Origin Dropdown -->
                 <div>
                     <div class="flex justify-between items-center mb-1.5">
-                        <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Starting Point</label>
-                        <span id="origin-mode-badge" class="text-[10px] font-medium text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded-full border border-emerald-800/50">Pinned Location</span>
+                        <label class="text-xs font-semibold text-[#C8D5B9] uppercase tracking-wider">Starting Point</label>
+                        <span id="origin-mode-badge" class="text-[10px] font-semibold text-[#8FC0A9] bg-[#8FC0A9]/15 px-2.5 py-0.5 rounded-full border border-[#8FC0A9]/30">Pinned Location</span>
                     </div>
                     <div class="flex gap-2">
                         <div class="relative flex-1">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400 absolute left-3 top-3.5"></i>
-                            <select id="origin-select" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs md:text-sm rounded-xl pl-9 pr-3 h-12 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none cursor-pointer">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-[#8FC0A9] absolute left-3.5 top-3.5"></i>
+                            <select id="origin-select" class="w-full bg-[#1A1C23] border border-[#696D7D]/50 text-[#FAF3DD] text-xs md:text-sm rounded-2xl pl-10 pr-3 h-12 focus:outline-none focus:ring-2 focus:ring-[#68B0AB] transition appearance-none cursor-pointer">
                                 <option value="gps">My GPS / Clicked Map Location</option>
                                 <option value="guingona">Guingona Park (City Center)</option>
                                 <option value="langihan">Langihan Terminal</option>
@@ -164,7 +172,7 @@
                                 <option value="bancasi">Bancasi Airport</option>
                             </select>
                         </div>
-                        <button id="locate-btn" title="Detect Current GPS Location" class="w-12 h-12 min-w-[48px] min-h-[48px] bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-xl transition flex items-center justify-center border border-slate-700 shadow-sm active:scale-95">
+                        <button id="locate-btn" title="Detect Current GPS Location" class="w-12 h-12 min-w-[48px] min-h-[48px] bg-[#696D7D]/30 hover:bg-[#696D7D]/50 text-[#8FC0A9] rounded-2xl transition flex items-center justify-center border border-[#696D7D]/40 shadow-sm active:scale-95">
                             <i data-lucide="crosshair" class="w-5 h-5"></i>
                         </button>
                     </div>
@@ -172,17 +180,17 @@
 
                 <!-- Arrow Divider -->
                 <div class="flex justify-center -my-1">
-                    <div class="bg-slate-800 p-1.5 rounded-full text-slate-400 border border-slate-700">
+                    <div class="bg-[#242730] p-2 rounded-full text-[#C8D5B9] border border-[#696D7D]/40 shadow-sm">
                         <i data-lucide="arrow-down-up" class="w-3.5 h-3.5"></i>
                     </div>
                 </div>
 
                 <!-- Destination Dropdown -->
                 <div>
-                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Target Destination</label>
+                    <label class="text-xs font-semibold text-[#C8D5B9] uppercase tracking-wider block mb-1.5">Target Destination</label>
                     <div class="relative">
-                        <i data-lucide="navigation" class="w-4 h-4 text-rose-400 absolute left-3 top-3.5"></i>
-                        <select id="destination-select" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs md:text-sm rounded-xl pl-9 pr-3 h-12 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none cursor-pointer">
+                        <i data-lucide="navigation" class="w-4 h-4 text-[#68B0AB] absolute left-3.5 top-3.5"></i>
+                        <select id="destination-select" class="w-full bg-[#1A1C23] border border-[#696D7D]/50 text-[#FAF3DD] text-xs md:text-sm rounded-2xl pl-10 pr-3 h-12 focus:outline-none focus:ring-2 focus:ring-[#68B0AB] transition appearance-none cursor-pointer">
                             <option value="" disabled selected>Select Destination Landmark...</option>
                             <option value="gaisano">Gaisano Mall Butuan</option>
                             <option value="robinsons">Robinsons Place Butuan</option>
@@ -197,22 +205,22 @@
                     </div>
                 </div>
 
-                <button id="find-route-btn" class="w-full mt-2 h-12 min-h-[48px] bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 text-xs md:text-sm uppercase tracking-wide">
+                <button id="find-route-btn" class="w-full mt-2 h-12 min-h-[48px] bg-[#68B0AB] hover:bg-[#599E9B] active:scale-[0.98] text-[#1A1C23] font-extrabold rounded-2xl shadow-lg shadow-[#68B0AB]/25 transition flex items-center justify-center gap-2 text-xs md:text-sm uppercase tracking-wide">
                     <i data-lucide="route" class="w-5 h-5"></i>
                     Snap Route & Get Ride Directions
                 </button>
             </div>
 
             <!-- Loading Indicator -->
-            <div id="loading-indicator" class="hidden p-4 bg-indigo-950/40 border border-indigo-800/50 rounded-2xl flex items-center gap-3">
-                <div class="w-5 h-5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin"></div>
-                <span class="text-xs text-indigo-200 font-medium">Fetching street geometry from OSRM...</span>
+            <div id="loading-indicator" class="hidden p-4 bg-[#68B0AB]/15 border border-[#68B0AB]/30 rounded-2xl flex items-center gap-3">
+                <div class="w-5 h-5 border-2 border-[#68B0AB] border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-xs text-[#FAF3DD] font-medium">Fetching street geometry from OSRM...</span>
             </div>
 
             <!-- Route Result & Step-by-Step Instructions -->
             <div id="route-output" class="hidden space-y-4">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-[#8FC0A9] flex items-center gap-1.5">
                         <i data-lucide="sparkles" class="w-4 h-4"></i>
                         Commute Recommendations
                     </h2>
@@ -220,14 +228,14 @@
                 </div>
 
                 <!-- Distance & Duration Summary Card -->
-                <div class="grid grid-cols-2 gap-2 bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-center">
+                <div class="grid grid-cols-2 gap-2.5 bg-[#696D7D]/20 p-3.5 rounded-2xl border border-[#696D7D]/30 text-center">
                     <div>
-                        <span class="text-[10px] text-slate-400 uppercase block">Road Distance</span>
-                        <span id="dist-val" class="text-sm md:text-base font-bold text-slate-100">-- km</span>
+                        <span class="text-[10px] text-[#C8D5B9] uppercase block font-semibold">Road Distance</span>
+                        <span id="dist-val" class="text-sm md:text-base font-extrabold text-[#FAF3DD]">-- km</span>
                     </div>
                     <div>
-                        <span class="text-[10px] text-slate-400 uppercase block">Est. Trip Time</span>
-                        <span id="time-val" class="text-sm md:text-base font-bold text-slate-100">-- mins</span>
+                        <span class="text-[10px] text-[#C8D5B9] uppercase block font-semibold">Est. Trip Time</span>
+                        <span id="time-val" class="text-sm md:text-base font-extrabold text-[#FAF3DD]">-- mins</span>
                     </div>
                 </div>
 
@@ -240,70 +248,70 @@
             <!-- Butuan Commute Routes Legend -->
             <div class="space-y-3 pt-2">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Road-Snapped City Lines</h3>
-                    <span class="text-[11px] text-indigo-400">Tap to preview</span>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-[#C8D5B9]">Road-Snapped City Lines</h3>
+                    <span class="text-[11px] text-[#8FC0A9]">Tap to preview</span>
                 </div>
 
                 <div class="grid grid-cols-1 gap-2.5">
                     
                     <!-- Route 1 -->
-                    <div class="p-3.5 bg-slate-800/40 min-h-[52px] rounded-xl border border-slate-800 hover:border-slate-700 active:bg-slate-800 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R1')">
+                    <div class="p-3.5 bg-[#696D7D]/20 min-h-[52px] rounded-2xl border border-[#696D7D]/30 hover:border-[#68B0AB]/50 active:bg-[#696D7D]/30 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R1')">
                         <div class="flex items-center gap-3">
                             <span class="w-3.5 h-3.5 rounded-full bg-r1 shadow-sm shrink-0"></span>
                             <div>
-                                <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-white">Route 1 (R1)</h4>
-                                <p class="text-[11px] text-slate-400">Langihan - City Center - Bancasi Loop</p>
+                                <h4 class="text-xs md:text-sm font-bold text-[#FAF3DD] group-hover:text-[#8FC0A9]">Route 1 (R1)</h4>
+                                <p class="text-[11px] text-[#C8D5B9]">Langihan - City Center - Bancasi Loop</p>
                             </div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-slate-500 group-hover:text-slate-300"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#C8D5B9] group-hover:text-[#FAF3DD]"></i>
                     </div>
 
                     <!-- Route 2 -->
-                    <div class="p-3.5 bg-slate-800/40 min-h-[52px] rounded-xl border border-slate-800 hover:border-slate-700 active:bg-slate-800 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R2')">
+                    <div class="p-3.5 bg-[#696D7D]/20 min-h-[52px] rounded-2xl border border-[#696D7D]/30 hover:border-[#68B0AB]/50 active:bg-[#696D7D]/30 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R2')">
                         <div class="flex items-center gap-3">
                             <span class="w-3.5 h-3.5 rounded-full bg-r2 shadow-sm shrink-0"></span>
                             <div>
-                                <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-white">Route 2 (R2)</h4>
-                                <p class="text-[11px] text-slate-400">JC Aquino - Montilla - Ampayon Line</p>
+                                <h4 class="text-xs md:text-sm font-bold text-[#FAF3DD] group-hover:text-[#8FC0A9]">Route 2 (R2)</h4>
+                                <p class="text-[11px] text-[#C8D5B9]">JC Aquino - Montilla - Ampayon Line</p>
                             </div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-slate-500 group-hover:text-slate-300"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#C8D5B9] group-hover:text-[#FAF3DD]"></i>
                     </div>
 
                     <!-- Route 3 -->
-                    <div class="p-3.5 bg-slate-800/40 min-h-[52px] rounded-xl border border-slate-800 hover:border-slate-700 active:bg-slate-800 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R3')">
+                    <div class="p-3.5 bg-[#696D7D]/20 min-h-[52px] rounded-2xl border border-[#696D7D]/30 hover:border-[#68B0AB]/50 active:bg-[#696D7D]/30 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R3')">
                         <div class="flex items-center gap-3">
                             <span class="w-3.5 h-3.5 rounded-full bg-r3 shadow-sm shrink-0"></span>
                             <div>
-                                <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-white">Route 3 (R3)</h4>
-                                <p class="text-[11px] text-slate-400">Villa Kananga - Libertad Highway</p>
+                                <h4 class="text-xs md:text-sm font-bold text-[#FAF3DD] group-hover:text-[#8FC0A9]">Route 3 (R3)</h4>
+                                <p class="text-[11px] text-[#C8D5B9]">Villa Kananga - Libertad Highway</p>
                             </div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-slate-500 group-hover:text-slate-300"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#C8D5B9] group-hover:text-[#FAF3DD]"></i>
                     </div>
 
                     <!-- Route 4 -->
-                    <div class="p-3.5 bg-slate-800/40 min-h-[52px] rounded-xl border border-slate-800 hover:border-slate-700 active:bg-slate-800 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R4')">
+                    <div class="p-3.5 bg-[#696D7D]/20 min-h-[52px] rounded-2xl border border-[#696D7D]/30 hover:border-[#68B0AB]/50 active:bg-[#696D7D]/30 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R4')">
                         <div class="flex items-center gap-3">
                             <span class="w-3.5 h-3.5 rounded-full bg-r4 shadow-sm shrink-0"></span>
                             <div>
-                                <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-white">Route 4 (R4)</h4>
-                                <p class="text-[11px] text-slate-400">Baan - Km 3 East Bypass Line</p>
+                                <h4 class="text-xs md:text-sm font-bold text-[#FAF3DD] group-hover:text-[#8FC0A9]">Route 4 (R4)</h4>
+                                <p class="text-[11px] text-[#C8D5B9]">Baan - Km 3 East Bypass Line</p>
                             </div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-slate-500 group-hover:text-slate-300"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#C8D5B9] group-hover:text-[#FAF3DD]"></i>
                     </div>
 
                     <!-- Route 10 -->
-                    <div class="p-3.5 bg-slate-800/40 min-h-[52px] rounded-xl border border-slate-800 hover:border-slate-700 active:bg-slate-800 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R10')">
+                    <div class="p-3.5 bg-[#696D7D]/20 min-h-[52px] rounded-2xl border border-[#696D7D]/30 hover:border-[#68B0AB]/50 active:bg-[#696D7D]/30 transition flex items-center justify-between group cursor-pointer" onclick="previewRoute('R10')">
                         <div class="flex items-center gap-3">
                             <span class="w-3.5 h-3.5 rounded-full bg-r10 shadow-sm shrink-0"></span>
                             <div>
-                                <h4 class="text-xs md:text-sm font-bold text-slate-200 group-hover:text-white">Route 10 (R10)</h4>
-                                <p class="text-[11px] text-slate-400">Inner City Tricycle / Feeder Connector</p>
+                                <h4 class="text-xs md:text-sm font-bold text-[#FAF3DD] group-hover:text-[#8FC0A9]">Route 10 (R10)</h4>
+                                <p class="text-[11px] text-[#C8D5B9]">Inner City Tricycle / Feeder Connector</p>
                             </div>
                         </div>
-                        <i data-lucide="chevron-right" class="w-5 h-5 text-slate-500 group-hover:text-slate-300"></i>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-[#C8D5B9] group-hover:text-[#FAF3DD]"></i>
                     </div>
 
                 </div>
@@ -312,7 +320,7 @@
         </div>
 
         <!-- Sidebar Footer -->
-        <div class="p-3.5 bg-slate-950 border-t border-slate-800 text-center text-[11px] text-slate-500 shrink-0">
+        <div class="p-3.5 bg-[#1A1C23] border-t border-[#696D7D]/30 text-center text-[11px] text-[#C8D5B9] shrink-0 font-medium">
             OpenStreetMap Standard Tiles + OSRM Engine
         </div>
     </div>
@@ -321,7 +329,7 @@
     <div class="flex-1 relative h-full w-full">
         <!-- Floating Reset Map Camera Button -->
         <div class="absolute top-4 right-4 z-[10]">
-            <button id="reset-map-btn" class="bg-slate-900/90 hover:bg-slate-900 text-slate-200 p-3 min-w-[44px] min-h-[44px] rounded-xl shadow-xl border border-slate-700 backdrop-blur-md transition flex items-center justify-center active:scale-95" title="Reset View">
+            <button id="reset-map-btn" class="bg-[#242730]/90 hover:bg-[#242730] text-[#FAF3DD] p-3 min-w-[44px] min-h-[44px] rounded-2xl shadow-xl border border-[#696D7D]/40 backdrop-blur-md transition flex items-center justify-center active:scale-95" title="Reset View">
                 <i data-lucide="maximize" class="w-5 h-5"></i>
             </button>
         </div>
@@ -483,7 +491,7 @@
                 const pathCoords = geometry ? geometry.coordinates : route.waypoints;
 
                 L.polyline(pathCoords, {
-                    color: '#0f172a',
+                    color: '#1A1C23',
                     weight: 6,
                     opacity: 0.5,
                     lineCap: 'round',
@@ -506,7 +514,7 @@
         Object.entries(LANDMARKS).forEach(([key, lm]) => {
             const landmarkIcon = L.divIcon({
                 className: 'custom-landmark-pin',
-                html: `<div class="bg-slate-900 text-slate-100 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-700 shadow-lg whitespace-nowrap">${lm.name}</div>`,
+                html: `<div class="bg-[#242730] text-[#FAF3DD] text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-[#696D7D]/50 shadow-lg whitespace-nowrap">${lm.name}</div>`,
                 iconSize: [80, 20],
                 iconAnchor: [40, 10]
             });
@@ -558,8 +566,8 @@
             const userIcon = L.divIcon({
                 className: 'user-pin-wrapper',
                 html: `<div class="user-location-marker"></div>`,
-                iconSize: [20, 20],
-                iconAnchor: [10, 10]
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
             });
 
             startMarker = L.marker(userLocation, { icon: userIcon }).addTo(map);
@@ -637,7 +645,7 @@
             if (endMarker) map.removeLayer(endMarker);
             const destIcon = L.divIcon({
                 className: 'dest-pin-wrapper',
-                html: `<div class="bg-rose-500 text-white p-2 rounded-full shadow-lg border-2 border-white"><i data-lucide="map-pin" class="w-4 h-4"></i></div>`,
+                html: `<div class="bg-[#68B0AB] text-[#1A1C23] p-2 rounded-full shadow-lg border-2 border-[#FAF3DD]"><i data-lucide="map-pin" class="w-4 h-4"></i></div>`,
                 iconSize: [32, 32],
                 iconAnchor: [16, 16]
             });
@@ -663,9 +671,9 @@
 
             if (snappedResult) {
                 L.polyline(snappedResult.coordinates, {
-                    color: '#ffffff',
+                    color: '#FAF3DD',
                     weight: 8,
-                    opacity: 0.8
+                    opacity: 0.85
                 }).addTo(activeHighlightGroup);
 
                 const activePolyline = L.polyline(snappedResult.coordinates, {
@@ -685,31 +693,31 @@
 
             document.getElementById('transfers-badge').innerText = isDirect ? "Direct PUJ Line" : "Transfer / Tricycle";
             document.getElementById('transfers-badge').className = isDirect 
-                ? "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800"
-                : "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800";
+                ? "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#8FC0A9]/20 text-[#8FC0A9] border border-[#8FC0A9]/40"
+                : "text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#F59E0B]/20 text-[#F59E0B] border border-[#F59E0B]/40";
 
             stepsContainer.innerHTML = `
-                <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700/80 flex items-start gap-3">
-                    <div class="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 bg-indigo-600 text-white">1</div>
-                    <div class="text-xs text-slate-200">
-                        <span class="font-bold text-slate-100 block mb-0.5">Walk to nearest pickup node</span>
-                        <p class="text-slate-400">Walk to nearest loading area along the street towards <b>${matchedRoute.shortName}</b> line.</p>
+                <div class="p-3.5 bg-[#696D7D]/20 rounded-2xl border border-[#696D7D]/30 flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 bg-[#68B0AB] text-[#1A1C23]">1</div>
+                    <div class="text-xs text-[#FAF3DD]">
+                        <span class="font-bold text-[#FAF3DD] block mb-0.5">Walk to nearest pickup node</span>
+                        <p class="text-[#C8D5B9]">Walk to nearest loading area along the street towards <b>${matchedRoute.shortName}</b> line.</p>
                     </div>
                 </div>
 
-                <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700/80 flex items-start gap-3">
-                    <div class="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 text-white" style="background-color: ${matchedRoute.color}">2</div>
-                    <div class="text-xs text-slate-200">
-                        <span class="font-bold text-slate-100 block mb-0.5">Board ${matchedRoute.vehicle}</span>
-                        <p class="text-slate-400">Ride along road path towards <b>${destLandmark.name}</b>.</p>
+                <div class="p-3.5 bg-[#696D7D]/20 rounded-2xl border border-[#696D7D]/30 flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 text-[#1A1C23]" style="background-color: ${matchedRoute.color}">2</div>
+                    <div class="text-xs text-[#FAF3DD]">
+                        <span class="font-bold text-[#FAF3DD] block mb-0.5">Board ${matchedRoute.vehicle}</span>
+                        <p class="text-[#C8D5B9]">Ride along road path towards <b>${destLandmark.name}</b>.</p>
                     </div>
                 </div>
 
-                <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700/80 flex items-start gap-3">
-                    <div class="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 bg-rose-600 text-white">3</div>
-                    <div class="text-xs text-slate-200">
-                        <span class="font-bold text-slate-100 block mb-0.5">Alight at Destination</span>
-                        <p class="text-slate-400">Disembark at <b>${destLandmark.name}</b> stop point.</p>
+                <div class="p-3.5 bg-[#696D7D]/20 rounded-2xl border border-[#696D7D]/30 flex items-start gap-3">
+                    <div class="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 bg-rose-600 text-[#FAF3DD]">3</div>
+                    <div class="text-xs text-[#FAF3DD]">
+                        <span class="font-bold text-[#FAF3DD] block mb-0.5">Alight at Destination</span>
+                        <p class="text-[#C8D5B9]">Disembark at <b>${destLandmark.name}</b> stop point.</p>
                     </div>
                 </div>
             `;
